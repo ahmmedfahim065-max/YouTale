@@ -2,321 +2,128 @@
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTale - Story Sharing App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>YouTale - Choose Language</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f3f4f6; margin: 0; padding: 0;}
-        .mobile-container { max-width: 480px; margin: 0 auto; background-color: white; min-height: 100vh; box-shadow: 0 0 20px rgba(0,0,0,0.1); position: relative; padding-bottom: 70px; display: none; overflow-x: hidden; }
-        #loginScreen { max-width: 480px; margin: 0 auto; min-height: 100vh; background: linear-gradient(135deg, #4f46e5, #3b82f6); display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-        #readingView, #authorProfileView { display: none; position: fixed; top: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; height: 100vh; background: white; z-index: 1000; overflow-y: auto; padding-bottom: 80px; }
-        .no-select { -webkit-user-select: none; -ms-user-select: none; user-select: none; }
-        #messageBox { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background-color: #10B981; color: white; padding: 10px 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 3000; display: none; text-align: center; width: 90%; max-width: 400px; font-weight: bold; }
-        #notificationToast { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background-color: #ffffff; border-left: 4px solid #4f46e5; padding: 12px 20px; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); z-index: 3500; transition: top 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55); width: 90%; max-width: 400px; display: flex; align-items: center; gap: 12px; }
-        #notificationToast.show { top: 20px; }
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 2500; justify-content: center; align-items: center; padding: 20px; }
-        .story-cover { height: 160px; background-color: #e5e7eb; background-size: cover; background-position: center; border-radius: 8px 8px 0 0; }
-        .author-avatar { width: 40px; height: 40px; border-radius: 50%; background-color: #cbd5e1; background-size: cover; background-position: center; border: 2px solid white; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: linear-gradient(135deg, #4f46e5 0%, #2563eb 100%);
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+        }
+        .glass-card { 
+            background: rgba(255, 255, 255, 0.95); 
+            backdrop-filter: blur(10px); 
+            border-radius: 1.5rem; 
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); 
+        }
+        .lang-btn { transition: all 0.2s; }
+        .lang-btn:active { transform: scale(0.95); background-color: #e0e7ff; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body>
+<body class="p-4">
 
-<div id="messageBox">মেসেজ</div>
-<div id="notificationToast">
-    <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600"><i class="fas fa-bell"></i></div>
-    <div><h4 class="text-sm font-bold text-gray-800" id="notifTitle">নতুন গল্প!</h4><p class="text-xs text-gray-500" id="notifDesc">নোটিফিকেশন</p></div>
-</div>
-
-<div id="loginScreen">
-    <div class="bg-white p-8 rounded-2xl shadow-2xl w-full text-center">
-        <div class="w-20 h-20 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4 text-indigo-600 text-4xl"><i class="fas fa-book-reader"></i></div>
-        <h1 class="text-3xl font-black text-gray-800 mb-1 tracking-tight">YouTale</h1>
-        <p class="text-gray-500 mb-8 text-sm font-medium">পড়ুন, লিখুন এবং আয় করুন</p>
+    <!-- Language Selection Screen -->
+    <div class="glass-card w-full max-w-md p-6 h-[90vh] flex flex-col relative overflow-hidden">
         
-        <div class="space-y-3 mb-6">
-            <button onclick="loginAs('user')" class="w-full bg-white border border-gray-300 text-gray-700 py-3 rounded-lg font-bold flex items-center justify-center gap-2 hover:bg-gray-50 shadow-sm"><i class="fab fa-google text-red-500"></i> সাধারণ ইউজার লগইন</button>
-            <button onclick="loginAs('guest')" class="w-full bg-indigo-50 text-indigo-700 py-3 rounded-lg font-bold hover:bg-indigo-100 border border-indigo-200"><i class="fas fa-user-secret"></i> একাউন্ট ছাড়া পড়ুন</button>
-        </div>
-        
-        <div class="pt-4 border-t border-gray-200">
-            <p class="text-[10px] text-gray-400 mb-2 uppercase tracking-wider font-bold">অ্যাডমিন প্যানেল</p>
-            <div class="flex flex-col gap-2">
-                <button onclick="loginAs('superadmin')" class="w-full bg-indigo-600 text-white py-2.5 rounded-lg font-bold shadow-md hover:bg-indigo-700 text-xs">👑 সুপার অ্যাডমিন হিসেবে প্রবেশ</button>
-                <button onclick="loginAs('admin')" class="w-full bg-green-500 text-white py-2.5 rounded-lg font-bold shadow-md hover:bg-green-600 text-xs">✍️ লেখক হিসেবে প্রবেশ</button>
+        <!-- Header -->
+        <div class="text-center mb-4">
+            <div class="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                <span class="text-3xl">🌍</span>
             </div>
-        </div>
-    </div>
-</div>
-
-<div class="mobile-container" id="mainApp">
-    <header class="bg-indigo-600 text-white p-4 sticky top-0 z-10 shadow-md">
-        <div class="flex justify-between items-center mb-3">
-            <h1 class="text-xl font-black tracking-tight"><i class="fas fa-book-open mr-2"></i> YouTale</h1>
-            <button onclick="logout()" class="text-indigo-200 hover:text-white text-xs bg-indigo-800 px-3 py-1.5 rounded-full font-bold"><i class="fas fa-sign-out-alt mr-1"></i> লগআউট</button>
-        </div>
-        <div class="relative" id="searchContainer">
-            <input type="text" id="searchInput" onkeyup="searchStories()" placeholder="গল্প বা লেখক খুঁজুন..." class="w-full bg-indigo-700 text-white placeholder-indigo-300 border-none rounded-full py-2.5 px-4 pl-10 focus:outline-none text-sm shadow-inner">
-            <i class="fas fa-search absolute left-3.5 top-3 text-indigo-300"></i>
-        </div>
-    </header>
-
-    <main class="p-0 bg-gray-100 min-h-screen relative">
-        <div id="homeTab" class="tab-content active p-4">
-            <div id="guestWarning" class="bg-yellow-50 border-l-4 border-yellow-400 p-3 mb-4 hidden rounded shadow-sm">
-                <p class="text-xs text-yellow-700 font-medium">আপনি গেস্ট মুডে আছেন। লাইক, বখশিশ বা ফলো করতে লগইন করুন।</p>
-            </div>
-            <h2 class="font-bold text-gray-800 mb-4 text-lg border-b pb-2 border-gray-200">সব গল্প</h2>
-            <div id="storyFeed" class="grid grid-cols-2 gap-3 pb-6"></div>
+            <h2 class="text-2xl font-bold text-gray-800">Choose Language</h2>
+            <p class="text-gray-500 text-sm">আপনার পছন্দের ভাষা নির্বাচন করুন</p>
         </div>
 
-        <div id="addStoryTab" class="tab-content p-4">
-            <div id="writerApplicationArea" class="bg-white p-6 rounded-2xl border shadow-sm text-center hidden">
-                <div class="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center text-3xl mx-auto mb-4"><i class="fas fa-feather-alt"></i></div>
-                <h2 class="font-bold text-xl text-gray-800 mb-2">লেখক হতে চান?</h2>
-                <p class="text-sm text-gray-500 mb-6">শর্তাবলি মেনে লেখক হওয়ার আবেদন করুন এবং ইনকাম শুরু করুন।</p>
-                <button id="btnApplyAuthor" onclick="openTermsModal()" class="w-full bg-indigo-600 text-white font-bold py-3.5 rounded-xl shadow-md hover:bg-indigo-700">আবেদন করুন</button>
-                <div id="applicationPendingMsg" class="mt-4 p-3 bg-yellow-50 rounded-xl text-sm text-yellow-700 font-bold hidden border border-yellow-200"><i class="fas fa-hourglass-half mr-1"></i> আবেদন অনুমোদনের অপেক্ষায় আছে।</div>
-            </div>
-
-            <div id="writingArea" class="hidden">
-                <h2 class="font-bold text-gray-800 mb-4 text-lg">নতুন গল্প লিখুন</h2>
-                <div class="bg-white p-5 rounded-2xl border shadow-sm">
-                    <label class="block text-[11px] font-bold text-gray-400 mb-1 uppercase">গল্পের কভার ছবির লিংক</label>
-                    <input type="text" id="newStoryCover" class="w-full mb-4 p-3 border rounded-xl text-sm bg-gray-50 outline-none" value="https://images.unsplash.com/photo-1519681393784-d120267933ba">
-                    <label class="block text-[11px] font-bold text-gray-400 mb-1 uppercase">শিরোনাম</label>
-                    <input type="text" id="newStoryTitle" placeholder="গল্পের নাম..." class="w-full mb-4 p-3 border rounded-xl font-bold text-gray-800 outline-none">
-                    <label class="block text-[11px] font-bold text-gray-400 mb-1 uppercase">পর্ব বা খণ্ড (ঐচ্ছিক)</label>
-                    <input type="text" id="newStoryChapter" placeholder="যেমন: পর্ব-১..." class="w-full mb-4 p-3 border rounded-xl text-gray-800 outline-none text-sm">
-                    <label class="block text-[11px] font-bold text-gray-400 mb-1 uppercase">মূল গল্প <span class="text-indigo-500 lowercase">(কপি-পেস্ট করা যাবে)</span></label>
-                    <textarea id="newStoryContent" rows="6" placeholder="গল্প শুরু করুন..." class="w-full mb-5 p-3 border rounded-xl text-sm text-gray-700 outline-none"></textarea>
-                    <button onclick="submitStory()" class="w-full bg-indigo-600 text-white font-bold py-3.5 rounded-xl shadow-lg hover:bg-indigo-700 active:scale-95 transition"><i class="fas fa-paper-plane mr-2"></i> পাবলিশ করুন</button>
-                </div>
-            </div>
-        </div>
-
-        <div id="dashboardTab" class="tab-content p-4">
-            <div id="userProfileArea" class="bg-white p-5 rounded-2xl shadow-sm border mb-5 text-center hidden">
-                <div class="author-avatar mx-auto mb-3 w-20 h-20 shadow-inner" id="dashAvatar"></div>
-                <h3 class="font-bold text-xl text-gray-800" id="dashName">নাম</h3>
-                <p class="text-sm text-indigo-500 font-medium mb-1" id="dashId">@username</p>
-                <span id="dashRoleBadge" class="inline-block bg-gray-100 text-gray-600 text-[10px] px-2 py-1 rounded font-bold uppercase">Role</span>
-            </div>
-
-            <div id="normalUserArea" class="hidden">
-                <h3 class="font-bold text-gray-700 text-sm mb-3"><i class="far fa-bookmark text-indigo-500 mr-1"></i> সেভ করা গল্পসমূহ</h3>
-                <div id="mySavedStoriesList" class="space-y-2 mb-6"></div>
-                <h3 class="font-bold text-gray-700 text-sm mb-3"><i class="fas fa-user-friends text-blue-500 mr-1"></i> যাদের ফলো করছেন</h3>
-                <div id="myFollowingList" class="grid grid-cols-2 gap-3 mb-6"></div>
-            </div>
-
-            <div id="authorEarningArea" class="hidden">
-                <h3 class="font-bold text-gray-700 mb-3 text-sm">ইনকাম সামারি</h3>
-                <div class="grid grid-cols-3 gap-2 mb-4">
-                    <div class="bg-white p-3 rounded-xl border shadow-sm text-center"><p class="text-[10px] text-gray-500">মোট গল্প</p><h3 id="myTotalStories" class="text-lg font-black text-gray-800">0</h3></div>
-                    <div class="bg-white p-3 rounded-xl border shadow-sm text-center"><p class="text-[10px] text-gray-500">মোট লাইক</p><h3 id="myTotalLikes" class="text-lg font-black text-gray-800">0</h3></div>
-                    <div class="bg-white p-3 rounded-xl border shadow-sm text-center"><p class="text-[10px] text-gray-500">ফলোয়ার</p><h3 id="myTotalFollowers" class="text-lg font-black text-gray-800">0</h3></div>
-                </div>
-                <div class="bg-gradient-to-br from-green-600 to-emerald-700 p-5 rounded-2xl shadow-lg text-white mb-6">
-                    <div class="flex justify-between items-center mb-4 border-b border-green-500 pb-3">
-                        <div><p class="text-[11px] text-green-100">মূল আয় (লাইক+বখশিশ)</p><h3 id="myTotalEarnings" class="text-2xl font-black">৳ 0.00</h3></div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="superAdminArea" class="hidden">
-                <div class="bg-indigo-600 text-white p-5 rounded-2xl shadow-lg mb-6 relative overflow-hidden">
-                    <h2 id="totalPlatformFunds" class="text-3xl font-black mt-1 mb-1">৳ 0.00</h2>
-                    <p class="text-[11px] text-indigo-100 font-medium">প্ল্যাটফর্ম ফান্ড (বখশিশের ৫০%)</p>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <div id="readingView">
-        <div class="sticky top-0 left-0 right-0 w-full p-4 flex justify-between items-center z-50 bg-gradient-to-b from-black/70 to-transparent">
-            <button onclick="closeReadingView()" class="bg-white/20 text-white w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-md shadow-md hover:bg-white/30 transition"><i class="fas fa-arrow-left"></i></button>
-            <div class="flex gap-2">
-                <button id="btnSaveStory" onclick="toggleSaveStory()" class="bg-white/20 text-white w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-md shadow-lg hover:bg-white/30 transition"><i class="far fa-bookmark text-lg"></i></button>
-            </div>
+        <!-- Search Box -->
+        <div class="mb-4 relative">
+            <input type="text" id="searchInput" onkeyup="searchLanguage()" placeholder="Search language..." 
+                   class="w-full bg-gray-50 border border-gray-200 text-gray-800 rounded-xl py-3 px-4 pl-10 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition shadow-sm">
+            <span class="absolute left-3 top-3.5 text-gray-400">🔍</span>
         </div>
         
-        <div id="readCover" class="w-full h-72 bg-gray-200 bg-cover bg-center relative -mt-16"></div>
-        
-        <div class="px-6 -mt-12 relative z-10 bg-white rounded-t-[30px] pt-8 min-h-screen">
-            <h1 id="readTitle" class="text-3xl font-black text-gray-900 leading-tight mb-4">গল্পের নাম</h1>
-            <div class="flex items-center justify-between mb-6 pb-6 border-b border-gray-100">
-                <div class="flex items-center gap-3 flex-1" onclick="openAuthorProfileFromRead()">
-                    <div id="readAuthorAvatar" class="author-avatar w-12 h-12 shadow-md border-2 border-indigo-100"></div>
-                    <div><p id="readAuthorName" class="font-bold text-sm text-gray-800">লেখকের নাম</p></div>
-                </div>
-                <button id="btnFollow" onclick="toggleFollow()" class="bg-indigo-50 border border-indigo-200 text-indigo-600 px-4 py-1.5 rounded-full text-xs font-bold shadow-sm transition">ফলো</button>
-            </div>
-            <p id="readContent" class="text-gray-800 text-[16px] leading-[1.8] mb-10 whitespace-pre-wrap no-select" oncopy="return false" oncut="return false" oncontextmenu="return false">গল্পের লেখা...</p>
-            <div class="h-32"></div>
+        <!-- Language List (100 Languages) -->
+        <div id="language-list" class="grid grid-cols-2 gap-3 overflow-y-auto hide-scrollbar pb-4 flex-grow">
+            <!-- ভাষাগুলো এখানে আসবে -->
         </div>
 
-        <div class="fixed bottom-0 w-full max-w-[480px] left-50 bg-white border-t border-gray-200 p-3 flex gap-3 z-[2000] pb-5">
-            <button id="btnLike" onclick="toggleLikeInRead()" class="flex-1 py-3.5 rounded-xl font-bold flex justify-center items-center gap-2 border-2 bg-gray-50 text-gray-600"><i class="far fa-heart text-xl"></i> <span id="readLikeCount" class="text-lg">0</span></button>
-            <button onclick="openTipModal()" class="flex-1 py-3.5 rounded-xl font-bold flex justify-center items-center gap-2 bg-gradient-to-r from-emerald-500 to-green-500 text-white"><i class="fas fa-gift text-xl"></i> বখশিশ</button>
-        </div>
     </div>
 
-    <nav class="bg-white border-t border-gray-100 fixed bottom-0 w-full max-w-[480px] flex justify-around text-gray-400 text-[10px] font-bold py-2 z-10 pb-5">
-        <button onclick="switchTab('homeTab')" class="flex flex-col items-center flex-1 text-indigo-600" id="navHome"><i class="fas fa-compass text-xl mb-1"></i> এক্সপ্লোর</button>
-        <button onclick="switchTab('addStoryTab')" class="flex flex-col items-center flex-1" id="navWrite"><i class="fas fa-pen-nib text-xl mb-1"></i> লিখুন</button>
-        <button onclick="switchTab('dashboardTab')" class="flex flex-col items-center flex-1 hidden" id="navDashboard"><i class="fas fa-user-circle text-xl mb-1"></i> প্রোফাইল</button>
-    </nav>
-</div>
-
-<script>
-    let currentUser = { role: null, name: '', id: '', hasLiked: [], following: [], savedStories: [], notifPrefs: {}, isApprovedAuthor: false, pendingAuthorReq: false }; 
-    let currentReadingStoryId = null; 
-    let platformTotalFunds = 150; let currentLikeRate = 0.01;
-
-    let usersData = {
-        'super_1': { role: 'superadmin', name: 'প্রধান অ্যাডমিন', username: '@admin', avatar: 'https://ui-avatars.com/api/?name=Admin', totalLikes: 0, totalTipsGiven: 0, followers: {real:0, bonus:0} },
-        'auth_test': { role: 'admin', name: 'সুমাইয়া আক্তার', username: '@sumaiya', avatar: 'https://i.pravatar.cc/150?u=sumaiya', totalLikes: 120, totalTipsGiven: 50, followers: {real:5, bonus:10} },
-        'user_demo': { role: 'user', name: 'ইউজার', username: '@reader01', avatar: 'https://ui-avatars.com/api/?name=User', totalLikes: 0, totalTipsGiven: 0, followers: {real:0, bonus:0} }
-    };
-
-    let publishedStories = [
-        { id: 1, title: 'নিঝুম রাতের কান্না', chapter: 'পর্ব-১', authorId: 'auth_test', cover: 'https://images.unsplash.com/photo-1518599904199-0ca897819ddb?w=400', content: 'রাত তখন ঠিক ২টা। হঠাৎ ছাদ থেকে নুপুর পড়ার শব্দ আসতে লাগলো। আমি একা রুমে শুয়ে ছিলাম। ভয়ে শরীর ঠান্ডা হয়ে আসছিল...', likes: 120, reports: 0, status: 'published', plagReport: null },
-        { id: 2, title: 'অচেনা আকাশ', chapter: '', authorId: 'auth_test', cover: 'https://images.unsplash.com/photo-1499346030926-9a72daac6c63?w=400', content: 'আজ আকাশটা বড়ই অদ্ভুত লাগছে। মেঘগুলো সব লাল হয়ে আছে। সুমাইয়া জানালার পাশে বসে এসব ভাবছিল। এমন সময় তার ফোনে একটি মেসেজ আসলো।', likes: 45, reports: 0, status: 'published', plagReport: null }
-    ];
-
-    function loginAs(role) {
-        // === সুপার অ্যাডমিন পাসওয়ার্ড সিকিউরিটি ===
-        if (role === 'superadmin') {
-            let pin = prompt("সুপার অ্যাডমিন প্যানেলে ঢুকতে পাসওয়ার্ড (PIN) দিন:\n(Hint: 7860)");
-            if (pin !== "7860") {
-                alert("ভুল পাসওয়ার্ড! আপনি ঢুকতে পারবেন না।");
-                return; // ভুল হলে লগইন হবে না
-            }
-        }
-
-        document.getElementById('loginScreen').style.display = 'none'; 
-        document.getElementById('mainApp').style.display = 'block';
-        
-        if (role === 'superadmin') { currentUser = { ...usersData['super_1'], id: 'super_1', isApprovedAuthor: true, hasLiked:[], following:[], savedStories:[], notifPrefs:{} }; } 
-        else if (role === 'admin') { currentUser = { ...usersData['auth_test'], id: 'auth_test', isApprovedAuthor: true, hasLiked:[], following:[], savedStories:[], notifPrefs:{} }; } 
-        else if (role === 'user') { currentUser = { ...usersData['user_demo'], id: 'user_demo', isApprovedAuthor: false, pendingAuthorReq: false, hasLiked:[], following:['auth_test'], savedStories:[], notifPrefs:{'auth_test':'all'} }; } 
-        else { currentUser = { role: 'guest', name: 'গেস্ট পাঠক', id: 'guest_' + Date.now(), isApprovedAuthor: false, hasLiked:[], following:[], savedStories:[], notifPrefs:{} }; }
-
-        document.getElementById('navDashboard').style.display = (role !== 'guest') ? 'flex' : 'none';
-        if(role === 'guest') document.getElementById('guestWarning').style.display = 'block';
-        else document.getElementById('guestWarning').style.display = 'none';
-        
-        switchTab('homeTab');
-    }
-
-    function logout() { closeReadingView(); document.getElementById('mainApp').style.display = 'none'; document.getElementById('loginScreen').style.display = 'flex'; }
-
-    function switchTab(tabId) {
-        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-        document.getElementById(tabId).classList.add('active');
-        document.querySelectorAll('nav button').forEach(el => el.classList.remove('text-indigo-600'));
-        if (tabId === 'homeTab') { document.getElementById('navHome').classList.add('text-indigo-600'); renderPublishedStories(publishedStories); }
-        if (tabId === 'addStoryTab') { document.getElementById('navWrite').classList.add('text-indigo-600'); }
-        if (tabId === 'dashboardTab') { document.getElementById('navDashboard').classList.add('text-indigo-600'); renderDashboard(); }
-    }
-
-    function searchStories() {
-        let q = document.getElementById('searchInput').value.toLowerCase();
-        let filtered = publishedStories.filter(s => s.title.toLowerCase().includes(q));
-        renderPublishedStories(filtered);
-    }
-
-    function renderDashboard() {
-        document.getElementById('userProfileArea').style.display = 'block';
-        document.getElementById('normalUserArea').style.display = 'none';
-        document.getElementById('authorEarningArea').style.display = 'none';
-        document.getElementById('superAdminArea').style.display = 'none';
-
-        document.getElementById('dashName').innerText = currentUser.name; 
-        document.getElementById('dashId').innerText = currentUser.username || '@guest';
-        document.getElementById('dashAvatar').style.backgroundImage = `url('${currentUser.avatar || 'https://ui-avatars.com/api/?name=User'}')`;
-        document.getElementById('dashRoleBadge').innerText = currentUser.role === 'admin' ? 'লেখক' : (currentUser.role === 'superadmin' ? 'সুপার অ্যাডমিন' : 'পাঠক');
-
-        if (currentUser.role === 'user' || currentUser.role === 'admin') { document.getElementById('normalUserArea').style.display = 'block'; }
-        if (currentUser.role === 'admin') { document.getElementById('authorEarningArea').style.display = 'block'; } 
-        else if (currentUser.role === 'superadmin') { 
-            document.getElementById('userProfileArea').style.display = 'none'; 
-            document.getElementById('superAdminArea').style.display = 'block';
-            document.getElementById('totalPlatformFunds').innerText = `৳ ${platformTotalFunds.toFixed(2)}`;
-        }
-    }
-
-    function renderPublishedStories(list) {
-        const feed = document.getElementById('storyFeed'); feed.innerHTML = '';
-        list.forEach(story => {
-            let author = usersData[story.authorId] || {};
-            let card = document.createElement('div'); 
-            card.className = 'bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden relative cursor-pointer hover:shadow-md transition'; 
-            card.onclick = () => openReadingView(story.id);
-            card.innerHTML = `<div class="story-cover" style="background-image: url('${story.cover}');"></div><div class="p-3"><h3 class="font-bold text-[14px] text-gray-800 line-clamp-2 leading-tight mb-1">${story.title}</h3><div class="flex items-center gap-1.5 mt-2"><div class="w-5 h-5 rounded-full bg-cover border border-gray-200" style="background-image: url('${author.avatar}');"></div><p class="text-[10px] text-gray-500 font-medium truncate">${author.name}</p></div></div>`;
-            feed.appendChild(card);
-        });
-    }
-
-    // === Fixed Reading Logic ===
-    function openReadingView(id) {
-        currentReadingStoryId = id; 
-        let story = publishedStories.find(s => s.id === id); 
-        let author = usersData[story.authorId] || {};
-        
-        document.getElementById('readCover').style.backgroundImage = `url('${story.cover}')`; 
-        document.getElementById('readTitle').innerText = story.title;
-        document.getElementById('readContent').innerText = story.content; 
-        document.getElementById('readAuthorName').innerText = author.name; 
-        document.getElementById('readAuthorAvatar').style.backgroundImage = `url('${author.avatar}')`;
-        
-        updateLikeBtnUI(story.id); 
-        document.getElementById('readingView').style.display = 'block';
-    }
-    
-    function closeReadingView() { 
-        document.getElementById('readingView').style.display = 'none'; 
-        currentReadingStoryId = null; 
-    }
-
-    function updateLikeBtnUI(id) {
-        let btn = document.getElementById('btnLike'); 
-        let story = publishedStories.find(s => s.id === id);
-        document.getElementById('readLikeCount').innerText = story.likes;
-        
-        if (currentUser.hasLiked && currentUser.hasLiked.includes(id)) { 
-            btn.innerHTML = '<i class="fas fa-heart text-xl text-red-500"></i> <span class="text-lg">'+story.likes+'</span>'; 
-            btn.classList.add('text-red-500', 'bg-red-50', 'border-red-200'); btn.classList.remove('bg-gray-50', 'text-gray-600'); 
-        } else { 
-            btn.innerHTML = '<i class="far fa-heart text-xl"></i> <span class="text-lg">'+story.likes+'</span>'; 
-            btn.classList.remove('text-red-500', 'bg-red-50', 'border-red-200'); btn.classList.add('bg-gray-50', 'text-gray-600'); 
-        }
-    }
-    
-    function toggleLikeInRead() {
-        if(currentUser.role === 'guest') return showMessage('লাইক দিতে লগইন করুন');
-        let story = publishedStories.find(s => s.id === currentReadingStoryId); 
-        
-        if (!currentUser.hasLiked) currentUser.hasLiked = []; // Safety check
-        
-        if (currentUser.hasLiked.includes(story.id)) { 
-            story.likes -= 1; 
-            currentUser.hasLiked = currentUser.hasLiked.filter(id => id !== story.id); 
-        } else { 
-            story.likes += 1; 
-            currentUser.hasLiked.push(story.id); 
-        }
-        updateLikeBtnUI(story.id);
-    }
-
-    function showMessage(text) { 
-        const m = document.getElementById('messageBox'); 
-        m.innerText = text; m.style.display = 'block'; 
-        setTimeout(() => m.style.display = 'none', 3000); 
-    }
-</script>
-</body>
-</html>
+    <script>
+        // ১০০টি বিশ্বব্যাপী ব্যবহৃত ভাষার তালিকা
+        const languages = [
+            { code: 'bn', name: 'Bengali', native: 'বাংলা' },
+            { code: 'en', name: 'English', native: 'English' },
+            { code: 'hi', name: 'Hindi', native: 'हिन्दी' },
+            { code: 'es', name: 'Spanish', native: 'Español' },
+            { code: 'ar', name: 'Arabic', native: 'العربية' },
+            { code: 'fr', name: 'French', native: 'Français' },
+            { code: 'ur', name: 'Urdu', native: 'اردو' },
+            { code: 'pt', name: 'Portuguese', native: 'Português' },
+            { code: 'ru', name: 'Russian', native: 'Русский' },
+            { code: 'zh-CN', name: 'Chinese (Simplified)', native: '中文 (简体)' },
+            { code: 'ja', name: 'Japanese', native: '日本語' },
+            { code: 'de', name: 'German', native: 'Deutsch' },
+            { code: 'it', name: 'Italian', native: 'Italiano' },
+            { code: 'ko', name: 'Korean', native: '한국어' },
+            { code: 'tr', name: 'Turkish', native: 'Türkçe' },
+            { code: 'vi', name: 'Vietnamese', native: 'Tiếng Việt' },
+            { code: 'ta', name: 'Tamil', native: 'தமிழ்' },
+            { code: 'te', name: 'Telugu', native: 'తెలుగు' },
+            { code: 'mr', name: 'Marathi', native: 'मराठी' },
+            { code: 'fa', name: 'Persian', native: 'فارسی' },
+            { code: 'th', name: 'Thai', native: 'ไทย' },
+            { code: 'gu', name: 'Gujarati', native: 'ગુજરાતી' },
+            { code: 'pl', name: 'Polish', native: 'Polski' },
+            { code: 'uk', name: 'Ukrainian', native: 'Українська' },
+            { code: 'nl', name: 'Dutch', native: 'Nederlands' },
+            { code: 'id', name: 'Indonesian', native: 'Bahasa Indonesia' },
+            { code: 'ml', name: 'Malayalam', native: 'മലയാളം' },
+            { code: 'kn', name: 'Kannada', native: 'ಕನ್ನಡ' },
+            { code: 'pa', name: 'Punjabi', native: 'ਪੰਜਾਬੀ' },
+            { code: 'or', name: 'Odia', native: 'ଓଡ଼ିଆ' },
+            { code: 'ro', name: 'Romanian', native: 'Română' },
+            { code: 'el', name: 'Greek', native: 'Ελληνικά' },
+            { code: 'hu', name: 'Hungarian', native: 'Magyar' },
+            { code: 'cs', name: 'Czech', native: 'Čeština' },
+            { code: 'sv', name: 'Swedish', native: 'Svenska' },
+            { code: 'my', name: 'Burmese', native: 'မြန်မာစာ' },
+            { code: 'si', name: 'Sinhala', native: 'සිංහල' },
+            { code: 'km', name: 'Khmer', native: 'ភាសាខ្មែរ' },
+            { code: 'ne', name: 'Nepali', native: 'नेपाली' },
+            { code: 'am', name: 'Amharic', native: 'አማርኛ' },
+            { code: 'yo', name: 'Yoruba', native: 'Yorùbá' },
+            { code: 'ig', name: 'Igbo', native: 'Igbo' },
+            { code: 'zu', name: 'Zulu', native: 'isiZulu' },
+            { code: 'ha', name: 'Hausa', native: 'Hausa' },
+            { code: 'sw', name: 'Swahili', native: 'Kiswahili' },
+            { code: 'bg', name: 'Bulgarian', native: 'Български' },
+            { code: 'sr', name: 'Serbian', native: 'Српски' },
+            { code: 'hr', name: 'Croatian', native: 'Hrvatski' },
+            { code: 'sk', name: 'Slovak', native: 'Slovenčina' },
+            { code: 'da', name: 'Danish', native: 'Dansk' },
+            { code: 'fi', name: 'Finnish', native: 'Suomi' },
+            { code: 'no', name: 'Norwegian', native: 'Norsk' },
+            { code: 'he', name: 'Hebrew', native: 'עברית' },
+            { code: 'ms', name: 'Malay', native: 'Bahasa Melayu' },
+            { code: 'tl', name: 'Tagalog', native: 'Tagalog' },
+            { code: 'ka', name: 'Georgian', native: 'ქართული' },
+            { code: 'hy', name: 'Armenian', native: 'Հայերեն' },
+            { code: 'az', name: 'Azerbaijani', native: 'Azərbaycan' },
+            { code: 'uz', name: 'Uzbek', native: 'Oʻzbek' },
+            { code: 'kk', name: 'Kazakh', native: 'Қазақ' },
+            { code: 'mn', name: 'Mongolian', native: 'Монгол' },
+            { code: 'sq', name: 'Albanian', native: 'Shqip' },
+            { code: 'mk', name: 'Macedonian', native: 'Македонски' },
+            { code: 'bs', name: 'Bosnian', native: 'Bosanski' },
+            { code: 'sl', name: 'Slovenian', native: 'Slovenščina' },
+            { code: 'et', name: 'Estonian', native: 'Eesti' },
+            { code: 'lv', name: 'Latvian', native: 'Latviešu'
