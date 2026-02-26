@@ -25,6 +25,7 @@
         }
         .lang-btn { transition: all 0.2s; }
         .lang-btn:active { transform: scale(0.95); background-color: #e0e7ff; }
+        /* Scrollbar Hide */
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
@@ -46,17 +47,18 @@
         <!-- Search Box -->
         <div class="mb-4 relative">
             <input type="text" id="searchInput" onkeyup="searchLanguage()" placeholder="Search language..." 
-                   class="w-full bg-gray-50 border border-gray-200 text-gray-800 rounded-xl py-3 px-4 pl-10 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition shadow-sm">
+                   class="w-full bg-gray-50 border border-gray-200 text-gray-800 rounded-xl py-3 px-4 pl-10 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition">
             <span class="absolute left-3 top-3.5 text-gray-400">🔍</span>
         </div>
         
         <!-- Language List (100 Languages) -->
         <div id="language-list" class="grid grid-cols-2 gap-3 overflow-y-auto hide-scrollbar pb-4 flex-grow">
-            <!-- ভাষাগুলো এখানে আসবে -->
+            <!-- জাভাস্ক্রিপ্ট দিয়ে এখানে ১০০টি ভাষা লোড করা হবে -->
         </div>
 
     </div>
 
+    <!-- জাভাস্ক্রিপ্ট অংশ (এটি কপি করতে ভুলবেন না) -->
     <script>
         // ১০০টি বিশ্বব্যাপী ব্যবহৃত ভাষার তালিকা
         const languages = [
@@ -126,4 +128,83 @@
             { code: 'bs', name: 'Bosnian', native: 'Bosanski' },
             { code: 'sl', name: 'Slovenian', native: 'Slovenščina' },
             { code: 'et', name: 'Estonian', native: 'Eesti' },
-            { code: 'lv', name: 'Latvian', native: 'Latviešu'
+            { code: 'lv', name: 'Latvian', native: 'Latviešu' },
+            { code: 'lt', name: 'Lithuanian', native: 'Lietuvių' },
+            { code: 'is', name: 'Icelandic', native: 'Íslenska' },
+            { code: 'mt', name: 'Maltese', native: 'Malti' },
+            { code: 'cy', name: 'Welsh', native: 'Cymraeg' },
+            { code: 'ga', name: 'Irish', native: 'Gaeilge' },
+            { code: 'eu', name: 'Basque', native: 'Euskara' },
+            { code: 'gl', name: 'Galician', native: 'Galego' },
+            { code: 'ca', name: 'Catalan', native: 'Català' },
+            { code: 'af', name: 'Afrikaans', native: 'Afrikaans' },
+            { code: 'xh', name: 'Xhosa', native: 'isiXhosa' },
+            { code: 'st', name: 'Sesotho', native: 'Sesotho' },
+            { code: 'sn', name: 'Shona', native: 'chiShona' },
+            { code: 'ny', name: 'Chichewa', native: 'Chichewa' },
+            { code: 'mg', name: 'Malagasy', native: 'Malagasy' },
+            { code: 'so', name: 'Somali', native: 'Soomaali' },
+            { code: 'rw', name: 'Kinyarwanda', native: 'Kinyarwanda' },
+            { code: 'su', name: 'Sundanese', native: 'Basa Sunda' },
+            { code: 'jv', name: 'Javanese', native: 'Basa Jawa' },
+            { code: 'ceb', name: 'Cebuano', native: 'Cebuano' },
+            { code: 'hmn', name: 'Hmong', native: 'Hmoob' },
+            { code: 'lo', name: 'Lao', native: 'ລາວ' },
+            { code: 'ti', name: 'Tigrinya', native: 'ትግርኛ' },
+            { code: 'sd', name: 'Sindhi', native: 'سنڌي' },
+            { code: 'ps', name: 'Pashto', native: 'پښتو' },
+            { code: 'ku', name: 'Kurdish', native: 'Kurdî' },
+            { code: 'ky', name: 'Kyrgyz', native: 'Кыргызча' },
+            { code: 'tg', name: 'Tajik', native: 'Тоҷикӣ' },
+            { code: 'tt', name: 'Tatar', native: 'Татар' },
+            { code: 'ug', name: 'Uyghur', native: 'ئۇيغۇرچە' },
+            { code: 'sm', name: 'Samoan', native: 'Gagana Samoa' },
+            { code: 'haw', name: 'Hawaiian', native: 'ʻŌlelo Hawaiʻi' },
+            { code: 'mi', name: 'Maori', native: 'Māori' },
+            { code: 'la', name: 'Latin', native: 'Latina' }
+        ];
+
+        const langContainer = document.getElementById('language-list');
+
+        // ১০০ টি ভাষা স্ক্রিনে লোড করা
+        function renderLanguages(list) {
+            langContainer.innerHTML = '';
+            list.forEach(lang => {
+                const btn = document.createElement('button');
+                btn.className = 'lang-btn bg-white border border-gray-100 text-gray-800 rounded-xl py-3 px-2 flex flex-col items-center justify-center gap-1 shadow-sm';
+                btn.innerHTML = `<span class="font-bold text-lg">${lang.native}</span><span class="text-[10px] text-gray-400 uppercase tracking-wider">${lang.name}</span>`;
+                btn.onclick = () => selectLanguage(lang.code);
+                langContainer.appendChild(btn);
+            });
+        }
+
+        // Search Function
+        function searchLanguage() {
+            const input = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = languages.filter(lang => 
+                lang.name.toLowerCase().includes(input) || 
+                lang.native.toLowerCase().includes(input)
+            );
+            renderLanguages(filtered);
+        }
+
+        // ভাষা সিলেক্ট করলে কী হবে
+        function selectLanguage(langCode) {
+            // ১. ইউজারের সিলেক্ট করা ভাষা ডিভাইসে সেভ করে রাখলাম
+            localStorage.setItem('youtale_lang', langCode);
+            
+            // ২. Auto-Translate ম্যাজিক (Google Translate এর কুকি সেট করে দিলাম)
+            document.cookie = `googtrans=/auto/${langCode}; path=/`;
+            if (location.hostname !== 'localhost' && location.hostname !== '') {
+                document.cookie = `googtrans=/auto/${langCode}; domain=.${location.hostname}; path=/`;
+            }
+
+            // ৩. ভাষা সিলেক্ট করার পর login.html পেজে নিয়ে যাবে
+            window.location.href = "login.html"; 
+        }
+
+        // শুরুতে সবগুলো ভাষা লোড করা
+        renderLanguages(languages);
+    </script>
+</body>
+</html>
