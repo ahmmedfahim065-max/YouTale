@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>YouTale - Login</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: linear-gradient(135deg, #4f46e5 0%, #2563eb 100%);
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+        }
+        .glass-card { 
+            background: rgba(255, 255, 255, 0.95); 
+            backdrop-filter: blur(10px); 
+            border-radius: 1.5rem; 
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); 
+        }
+        .tab-btn { transition: all 0.3s ease; }
+        .tab-btn.active { border-bottom: 2px solid #4f46e5; color: #4f46e5; font-weight: bold; }
+        .tab-btn.inactive { border-bottom: 2px solid transparent; color: #9ca3af; font-weight: normal; }
+        input:focus { outline: none; border-color: #4f46e5; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
+    </style>
+</head>
+<body class="p-4">
+
+    <!-- Auth Card -->
+    <div class="glass-card w-full max-w-md p-6 relative">
+        
+        <!-- Back Button -->
+        <button onclick="window.location.href='index.html'" class="absolute top-6 left-6 text-gray-400 hover:text-gray-800 flex items-center gap-1 transition">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+        </button>
+
+        <div class="text-center mb-6 mt-2">
+            <h2 class="text-3xl font-extrabold text-gray-800 tracking-tight" id="txt-title">YouTale</h2>
+            <p class="text-gray-500 text-sm mt-1" id="txt-subtitle">পড়ুন, লিখুন এবং আয় করুন</p>
+        </div>
+
+        <!-- Tabs -->
+        <div class="flex border-b border-gray-200 mb-6">
+            <button onclick="switchTab('login')" id="tab-login" class="flex-1 py-3 text-center tab-btn active">লগইন</button>
+            <button onclick="switchTab('register')" id="tab-register" class="flex-1 py-3 text-center tab-btn inactive">রেজিস্ট্রেশন</button>
+        </div>
+
+        <!-- ================= Login Form ================= -->
+        <div id="form-login" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1" id="lbl-login-email">ইমেইল</label>
+                <input type="email" id="login-email" class="w-full bg-gray-50 border border-gray-200 text-gray-800 rounded-xl py-3 px-4 transition" placeholder="example@mail.com">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1" id="lbl-login-pass">পাসওয়ার্ড</label>
+                <input type="password" id="login-password" class="w-full bg-gray-50 border border-gray-200 text-gray-800 rounded-xl py-3 px-4 transition" placeholder="••••••••">
+            </div>
+            
+            <button onclick="processLogin()" id="btn-login" class="w-full bg-indigo-600 text-white rounded-xl py-3.5 font-bold mt-2 hover:bg-indigo-700 active:scale-95 transition shadow-lg shadow-indigo-200">
+                লগইন করুন
+            </button>
+
+            <!-- Forgot Password Button -->
+            <button onclick="resetPassword()" id="btn-forgot-pass" class="w-full text-center text-sm font-medium text-indigo-600 hover:text-indigo-800 mt-3 transition">
+                পাসওয়ার্ড ভুলে গেছেন?
+            </button>
+        </div>
+
+        <!-- ================= Register Form ================= -->
+        <div id="form-register" class="space-y-4 hidden">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1" id="lbl-reg-name">সম্পূর্ণ নাম</label>
+                <input type="text" id="reg-name" class="w-full bg-gray-50 border border-gray-200 text-gray-800 rounded-xl py-3 px-4 transition" placeholder="আপনার নাম">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1" id="lbl-reg-email">ইমেইল</label>
+                <input type="email" id="reg-email" class="w-full bg-gray-50 border border-gray-200 text-gray-800 rounded-xl py-3 px-4 transition" placeholder="example@mail.com">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1" id="lbl-reg-pass">পাসওয়ার্ড</label>
+                <input type="password" id="reg-password" class="w-full bg-gray-50 border border-gray-200 text-gray-800 rounded-xl py-3 px-4 transition" placeholder="অন্তত ৬ অক্ষরের হতে হবে">
+            </div>
+            <button onclick="processRegister()" id="btn-register" class="w-full bg-green-600 text-white rounded-xl py-3.5 font-bold mt-2 hover:bg-green-700 active:scale-95 transition shadow-lg shadow-green-200">
+                একাউন্ট তৈরি করুন
+            </button>
+        </div>
+
+        <!-- Message Box (Error/Success) -->
+        <div id="auth-message" class="mt-4 text-center text-sm font-bold p-3 rounded-lg hidden"></div>
+
+        <!-- Divider -->
+        <div class="relative flex items-center my-6">
+            <div class="flex-grow border-t border-gray-200"></div>
+            <span class="flex-shrink-0 mx-4 text-gray-400 text-xs font-semibold">অথবা</span>
+            <div class="flex-grow border-t border-gray-200"></div>
+        </div>
+
+        <!-- Guest Button -->
+        <button onclick="continueAsGuest()" id="btn-guest" class="w-full bg-white text-gray-700 border-2 border-gray-200 rounded-xl py-3.5 font-bold hover:bg-gray-50 transition active:scale-95 flex items-center justify-center gap-2">
+            <span>🕵️‍♂️</span> একাউন্ট ছাড়া পড়ুন
+        </button>
+
+    </div>
+
+    <!-- Firebase Logic -->
+    <script type="module">
+        // sendPasswordResetEmail ইমপোর্ট করা হলো
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // 🔴🔴 নিচে আপনার Firebase এর আসল Config টি বসান 🔴🔴
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+        // 🔴🔴 ------------------------------------------- 🔴🔴
+
+        let app, auth, db;
+        try {
+            app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            db = getFirestore(app);
+        } catch (error) {
+            console.error("Firebase Config Error:", error);
+        }
+
+        // ================= Language Translations =================
+        const translations = {
+            'en': {
+                sub: 'Read, Write and Earn', loginTab: 'Login', regTab: 'Register',
+                email: 'Email', pass: 'Password', name: 'Full Name', 
+                loginBtn: 'Login to YouTale', regBtn: 'Create Account', guestBtn: 'Read without Account',
+                forgotPass: 'Forgot Password?'
+            },
+            'bn': {
+                sub: 'পড়ুন, লিখুন এবং আয় করুন', loginTab: 'লগইন', regTab: 'রেজিস্ট্রেশন',
+                email: 'ইমেইল', pass: 'পাসওয়ার্ড', name: 'সম্পূর্ণ নাম', 
+                loginBtn: 'লগইন করুন', regBtn: 'একাউন্ট তৈরি করুন', guestBtn: 'একাউন্ট ছাড়া পড়ুন',
+                forgotPass: 'পাসওয়ার্ড ভুলে গেছেন?'
+            }
+        };
+
+        const userLang = localStorage.getItem('youtale_lang') || 'en';
+        const t = translations[userLang] || translations['en'];
+
+        document.getElementById('txt-subtitle').innerText = t.sub;
+        document.getElementById('tab-login').innerText = t.loginTab;
+        document.getElementById('tab-register').innerText = t.regTab;
+        document.getElementById('lbl-login-email').innerText = t.email;
+        document.getElementById('lbl-login-pass').innerText = t.pass;
+        document.getElementById('lbl-reg-name').innerText = t.name;
+        document.getElementById('lbl-reg-email').innerText = t.email;
+        document.getElementById('lbl-reg-pass').innerText = t.pass;
+        document.getElementById('btn-login').innerText = t.loginBtn;
+        document.getElementById('btn-register').innerText = t.regBtn;
+        document.getElementById('btn-guest').innerHTML = `<span>🕵️‍♂️</span> ${t.guestBtn}`;
+        document.getElementById('btn-forgot-pass').innerText = t.forgotPass;
+
+        // ================= UI Functions =================
+        window.switchTab = (tab) => {
+            const loginForm = document.getElementById('form-login');
+            const regForm = document.getElementById('form-register');
+            const loginTab = document.getElementById('tab-login');
+            const regTab = document.getElementById('tab-register');
+
+            if (tab === 'login') {
+                loginForm.classList.remove('hidden');
+                regForm.classList.add('hidden');
+                loginTab.className = 'flex-1 py-3 text-center tab-btn active';
+                regTab.className = 'flex-1 py-3 text-center tab-btn inactive';
+            } else {
+                loginForm.classList.add('hidden');
+                regForm.classList.remove('hidden');
+                loginTab.className = 'flex-1 py-3 text-center tab-btn inactive';
+                regTab.className = 'flex-1 py-3 text-center tab-btn active';
+            }
+            hideMessage();
+        };
+
+        const showMessage = (msg, isError) => {
+            const msgBox = document.getElementById('auth-message');
+            msgBox.innerText = msg;
+            msgBox.className = `mt-4 text-center text-sm font-bold p-3 rounded-lg ${isError ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-700'}`;
+            msgBox.classList.remove('hidden');
+        };
+
+        const hideMessage = () => { document.getElementById('auth-message').classList.add('hidden'); };
+
+        // ================= Auth Functions =================
+        window.continueAsGuest = () => {
+            localStorage.setItem('youtale_guest', 'true');
+            window.location.href = "dashboard.html"; 
+        };
+
+        window.processLogin = async () => {
+            const email = document.getElementById('login-email').value;
+            const pass = document.getElementById('login-password').value;
+            
+            if(!email || !pass) return showMessage(userLang === 'bn' ? 'ইমেইল ও পাসওয়ার্ড দিন' : 'Please enter email and password', true);
+
+            try {
+                showMessage(userLang === 'bn' ? 'লগইন হচ্ছে...' : 'Logging in...', false);
+                await signInWithEmailAndPassword(auth, email, pass);
+                localStorage.setItem('youtale_guest', 'false');
+                window.location.href = "dashboard.html"; 
+            } catch(e) {
+                showMessage(userLang === 'bn' ? 'লগইন ব্যর্থ। ইমেইল বা পাসওয়ার্ড ভুল।' : 'Invalid email or password.', true);
+            }
+        };
+
+        // Forgot Password Function
+        window.resetPassword = async () => {
+            const email = document.getElementById('login-email').value;
+            
+            // ইমেইল না দিয়ে পাসওয়ার্ড রিসেটে ক্লিক করলে ওয়ার্নিং দেবে
+            if(!email) {
+                return showMessage(userLang === 'bn' ? 'দয়া করে উপরের ঘরে আপনার ইমেইলটি দিন এবং আবার ক্লিক করুন।' : 'Please enter your email above first.', true);
+            }
+
+            try {
+                showMessage(userLang === 'bn' ? 'লিংক পাঠানো হচ্ছে...' : 'Sending link...', false);
+                await sendPasswordResetEmail(auth, email);
+                showMessage(userLang === 'bn' ? 'পাসওয়ার্ড রিসেট লিংক আপনার ইমেইলে পাঠানো হয়েছে। জিমেইল চেক করুন!' : 'Password reset link sent to your email. Please check!', false);
+            } catch(e) {
+                let errText = userLang === 'bn' ? 'লিংক পাঠানো যায়নি। ইমেইলটি সঠিক কিনা চেক করুন।' : 'Failed to send link. Check your email.';
+                if(e.code === 'auth/user-not-found') {
+                    errText = userLang === 'bn' ? 'এই ইমেইলে কোনো একাউন্ট খোলা নেই।' : 'No account found with this email.';
+                }
+                showMessage(errText, true);
+            }
+        };
+
+        window.processRegister = async () => {
+            const name = document.getElementById('reg-name').value;
+            const email = document.getElementById('reg-email').value;
+            const pass = document.getElementById('reg-password').value;
+            
+            if(!name || !email || !pass) return showMessage(userLang === 'bn' ? 'সবগুলো ঘর পূরণ করুন' : 'Please fill all fields', true);
+            if(pass.length < 6) return showMessage(userLang === 'bn' ? 'পাসওয়ার্ড অন্তত ৬ অক্ষরের হতে হবে' : 'Password must be at least 6 characters', true);
+
+            try {
+                showMessage(userLang === 'bn' ? 'একাউন্ট তৈরি হচ্ছে...' : 'Creating account...', false);
+                const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+                await updateProfile(userCredential.user, { displayName: name });
+                
+                const docRef = doc(db, 'users', userCredential.user.uid);
+                await setDoc(docRef, {
+                    name: name,
+                    email: email,
+                    role: 'user', 
+                    earnings: 0,
+                    followers: 0,
+                    likes: 0,
+                    joinedAt: new Date().toISOString()
+                });
+
+                localStorage.setItem('youtale_guest', 'false');
+                window.location.href = "dashboard.html"; 
+            } catch(e) {
+                let errorText = userLang === 'bn' ? 'একাউন্ট তৈরি করা যায়নি।' : 'Failed to create account.';
+                if(e.code === 'auth/email-already-in-use') {
+                    errorText = userLang === 'bn' ? 'এই ইমেইল দিয়ে আগেই একাউন্ট খোলা আছে।' : 'Email already in use.';
+                }
+                showMessage(errorText, true);
+            }
+        };
+    </script>
+</body>
+</html>
