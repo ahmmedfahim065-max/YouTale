@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>YouTale - Global Master App</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Hind Siliguri', 'Poppins', sans-serif; background: #f0f4f8; overflow-x: hidden; }
+        .app-gradient { background: linear-gradient(-45deg, #6366f1, #a855f7, #ec4899, #3b82f6); background-size: 400% 400%; animation: grad 15s ease infinite; }
+        @keyframes grad { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        .glass-card { background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(10px); border-radius: 2.5rem; }
+        .lang-card { background: white; border: 1px solid #e2e8f0; border-radius: 1.5rem; transition: 0.3s; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .lang-card:active { transform: scale(0.95); background: #f1f5f9; }
+        .hidden { display: none !important; }
+        
+        /* গুগল ট্রান্সলেট হাইড করা কিন্তু কার্যকর রাখা */
+        #google_translate_element { display: none; }
+        .goog-te-banner-frame.skiptranslate { display: none !important; }
+        body { top: 0px !important; }
+        
+        /* কাস্টম স্ক্রলবার */
+        .custom-scroll::-webkit-scrollbar { width: 4px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+    <!-- গুগল ট্রান্সলেট ইঞ্জিন (লুকানো) -->
+    <div id="google_translate_element"></div>
+
+    <!-- ১. ল্যাঙ্গুয়েজ সিলেকশন স্ক্রিন (আপনার স্ক্রিনশটের মতো) -->
+    <section id="screen-lang" class="min-h-screen app-gradient p-6 flex flex-col items-center">
+        <div class="w-full max-w-md bg-white/95 rounded-[3rem] p-8 shadow-2xl mt-10">
+            <div class="text-center mb-8">
+                <div class="text-5xl mb-4">🌍</div>
+                <h2 class="text-3xl font-black text-slate-800 tracking-tight">Choose Language</h2>
+                <p class="text-slate-400 text-sm font-bold">আপনার পছন্দের ভাষা নির্বাচন করুন</p>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4 max-h-[400px] overflow-y-auto pr-2 custom-scroll">
+                <!-- ল্যাঙ্গুয়েজ কার্ডসমূহ -->
+                <div onclick="pickGlobalLang('bn')" class="lang-card p-5 text-center shadow-sm">
+                    <span class="block font-black text-xl text-slate-800">বাংলা</span>
+                    <span class="text-[10px] uppercase font-bold text-slate-400 tracking-widest">Bengali</span>
+                </div>
+                <div onclick="pickGlobalLang('en')" class="lang-card p-5 text-center shadow-sm">
+                    <span class="block font-black text-xl text-slate-800">English</span>
+                    <span class="text-[10px] uppercase font-bold text-slate-400 tracking-widest">English</span>
+                </div>
+                <div onclick="pickGlobalLang('hi')" class="lang-card p-5 text-center shadow-sm">
+                    <span class="block font-black text-xl text-slate-800">हिन्दी</span>
+                    <span class="text-[10px] uppercase font-bold text-slate-400 tracking-widest">Hindi</span>
+                </div>
+                <div onclick="pickGlobalLang('ar')" class="lang-card p-5 text-center shadow-sm">
+                    <span class="block font-black text-xl text-slate-800">العربية</span>
+                    <span class="text-[10px] uppercase font-bold text-slate-400 tracking-widest">Arabic</span>
+                </div>
+                <div onclick="pickGlobalLang('es')" class="lang-card p-5 text-center shadow-sm">
+                    <span class="block font-black text-xl text-slate-800">Español</span>
+                    <span class="text-[10px] uppercase font-bold text-slate-400 tracking-widest">Spanish</span>
+                </div>
+                <div onclick="pickGlobalLang('fr')" class="lang-card p-5 text-center shadow-sm">
+                    <span class="block font-black text-xl text-slate-800">Français</span>
+                    <span class="text-[10px] uppercase font-bold text-slate-400 tracking-widest">French</span>
+                </div>
+                <div onclick="pickGlobalLang('ur')" class="lang-card p-5 text-center shadow-sm">
+                    <span class="block font-black text-xl text-slate-800">اردو</span>
+                    <span class="text-[10px] uppercase font-bold text-slate-400 tracking-widest">Urdu</span>
+                </div>
+                <div onclick="pickGlobalLang('pt')" class="lang-card p-5 text-center shadow-sm">
+                    <span class="block font-black text-xl text-slate-800">Português</span>
+                    <span class="text-[10px] uppercase font-bold text-slate-400 tracking-widest">Portuguese</span>
+                </div>
+            </div>
+            
+            <p class="text-center text-[10px] text-slate-400 mt-6 font-bold uppercase tracking-widest">YouTale Master Shell v4.0</p>
+        </div>
+    </section>
+
+    <!-- ২. অথেন্টিকেশন স্ক্রিন -->
+    <section id="screen-auth" class="hidden min-h-screen app-gradient flex items-center justify-center p-4">
+        <div class="glass-card w-full max-w-md p-8 shadow-2xl">
+            <div class="text-center mb-8">
+                <h2 class="text-4xl font-black text-slate-800 tracking-tight">YouTale</h2>
+                <p class="text-slate-500 text-sm font-semibold mt-1">পড়ুন, লিখুন এবং আয় করুন</p>
+            </div>
+
+            <div class="flex border-b mb-8">
+                <button onclick="toggleAuth('login')" id="tab-l" class="flex-1 py-3 text-center font-bold border-b-4 border-indigo-600 text-indigo-600 uppercase text-[10px] tracking-widest">লগইন</button>
+                <button onclick="toggleAuth('reg')" id="tab-r" class="flex-1 py-3 text-center font-bold text-slate-400 uppercase text-[10px] tracking-widest">রেজিস্ট্রেশন</button>
+            </div>
+
+            <div class="space-y-4">
+                <input type="email" id="email" class="w-full p-4 rounded-2xl bg-slate-50 border outline-none focus:border-indigo-600" placeholder="ইমেইল আইডি / Email">
+                <input type="password" id="pass" class="w-full p-4 rounded-2xl bg-slate-50 border outline-none focus:border-indigo-600" placeholder="পাসওয়ার্ড / Password">
+                <input type="text" id="reg-name" class="hidden w-full p-4 rounded-2xl bg-slate-50 border outline-none focus:border-indigo-600" placeholder="নাম / Name">
+                
+                <button onclick="handleAuth()" id="btn-auth" class="w-full bg-indigo-600 text-white rounded-2xl py-4 font-bold shadow-xl active:scale-95 transition-all">লগইন করুন</button>
+                
+                <div class="relative flex items-center py-4">
+                    <div class="flex-grow border-t"></div>
+                    <span class="px-4 text-[10px] text-slate-400 font-bold uppercase tracking-widest">অথবা</span>
+                    <div class="flex-grow border-t"></div>
+                </div>
+
+                <button onclick="loginGoogle()" class="w-full bg-white border py-3.5 rounded-2xl font-bold flex items-center justify-center gap-3 active:scale-95">
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/action/google.svg" class="w-5 h-5"> <span>গুগল লগইন</span>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ৩. মেইন অ্যাপ ড্যাশবোর্ড -->
+    <section id="screen-app" class="hidden min-h-screen pt-20 pb-24">
+        <!-- টপ বার -->
+        <header class="fixed top-0 left-0 w-full z-[110] bg-white/80 backdrop-blur-md p-4 flex justify-between items-center border-b border-indigo-50 shadow-sm">
+            <h1 class="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-pink-500 tracking-tighter">YouTale</h1>
+            <button onclick="logout()" class="text-red-500 bg-red-50 p-2 rounded-full active:scale-90"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7"></path></svg></button>
+        </header>
+
+        <div class="max-w-md mx-auto p-5">
+            <div id="sec-home">
+                <h2 class="text-xl font-bold text-slate-800 mb-5">গল্পের ফিড</h2>
+                <div id="story-feed" class="space-y-4">
+                    <div class="text-center py-20 text-slate-400 font-bold italic">গল্প লোড হচ্ছে...</div>
+                </div>
+            </div>
+            <!-- বাকি সেকশনসমূহ (লিখুন, ওয়ালেট, প্রোফাইল) আগের মতোই থাকবে -->
+            <div id="sec-write" class="hidden">
+                <h2 class="text-xl font-bold text-slate-800 mb-5">নতুন গল্প</h2>
+                <div class="bg-white p-6 rounded-[2.5rem] border shadow-sm space-y-4">
+                    <input type="text" id="post-title" class="w-full p-2 text-xl font-bold outline-none border-b" placeholder="গল্পের শিরোনাম">
+                    <textarea id="post-content" rows="12" class="w-full p-2 outline-none resize-none" placeholder="আপনার গল্পটি লিখুন..."></textarea>
+                    <button onclick="publishStory()" class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-bold shadow-lg active:scale-95">পাবলিশ করুন</button>
+                </div>
+            </div>
+            <div id="sec-wallet" class="hidden">
+                <h2 class="text-xl font-bold text-slate-800 mb-5 text-left">ওয়ালেট</h2>
+                <div class="bg-gradient-to-br from-indigo-600 to-purple-800 p-8 rounded-[3rem] text-white shadow-xl relative overflow-hidden text-center">
+                    <p class="text-sm opacity-80 mb-1">মোট আয় (৳)</p>
+                    <div class="flex items-end justify-center gap-1 mb-8">
+                        <span class="text-2xl font-bold mb-1">৳</span>
+                        <h1 class="text-6xl font-black" id="val-earnings">0.00</h1>
+                    </div>
+                    <button class="w-full bg-white/20 py-4 rounded-xl font-bold backdrop-blur-md">টাকা উত্তোলন (Withdraw)</button>
+                </div>
+            </div>
+            <div id="sec-profile" class="hidden">
+                <h2 class="text-xl font-bold text-slate-800 mb-5 text-left">প্রোফাইল</h2>
+                <div class="bg-white p-10 rounded-[3.5rem] border flex flex-col items-center shadow-sm">
+                    <div class="w-24 h-24 bg-indigo-50 rounded-full flex items-center justify-center text-4xl font-black text-indigo-600 mb-4 shadow-inner" id="val-initial">?</div>
+                    <h3 class="text-2xl font-black text-slate-800" id="val-name">লোড হচ্ছে...</h3>
+                    <p class="text-xs text-slate-400 mt-2" id="val-email">...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ন্যাভিগেশন মেনু -->
+        <nav class="fixed bottom-0 left-0 w-full bg-white/90 backdrop-blur-lg border-t flex justify-around p-4 z-50">
+            <button onclick="switchTab('home')" class="nav-item active text-center" id="nav-home">🏠<br><span class="text-[10px]">হোম</span></button>
+            <button onclick="switchTab('write')" class="nav-item text-center" id="nav-write">✍️<br><span class="text-[10px]">লিখুন</span></button>
+            <button onclick="switchTab('wallet')" class="nav-item text-center" id="nav-wallet">💰<br><span class="text-[10px]">আয়</span></button>
+            <button onclick="switchTab('profile')" class="nav-item text-center" id="nav-profile">👤<br><span class="text-[10px]">আমি</span></button>
+        </nav>
+    </section>
+
+    <!-- লজিক স্ক্রিপ্টসমূহ -->
+    <script type="text/javascript">
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({pageLanguage: 'bn', autoDisplay: false}, 'google_translate_element');
+        }
+        
+        // ভাষা সিলেক্ট করার ফাংশন
+        window.pickGlobalLang = (code) => {
+            const googleCombo = document.querySelector('.goog-te-combo');
+            if (googleCombo) {
+                googleCombo.value = code;
+                googleCombo.dispatchEvent(new Event('change'));
+            }
+            // স্ক্রিন পরিবর্তন করে লগইন পেজে নিয়ে যাওয়া
+            document.getElementById('screen-lang').classList.add('hidden');
+            document.getElementById('screen-auth').classList.remove('hidden');
+        };
+    </script>
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, signOut, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, onSnapshot, setDoc, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // ফায়ারবেস কনফিগারেশন
+        const firebaseConfig = {
+            apiKey: "AIzaSyB9WjFq4Ips9wMKoDmO8v2M6aZ2OxynQQo",
+            authDomain: "youtale-f6845.firebaseapp.com",
+            projectId: "youtale-f6845",
+            storageBucket: "youtale-f6845.firebasestorage.app",
+            messagingSenderId: "10854951568",
+            appId: "1:10854951568:web:cffcc9813d858e130d8615"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const appId = "YouTale-Global-Final-V4";
+        let mode = 'login';
+
+        // অথেন্টিকেশন টগল
+        window.toggleAuth = (m) => {
+            mode = m;
+            document.getElementById('reg-name').classList.toggle('hidden', m === 'login');
+            document.getElementById('btn-auth').innerText = m === 'login' ? 'লগইন করুন' : 'রেজিস্ট্রেশন করুন';
+            document.getElementById('tab-l').className = m === 'login' ? 'flex-1 py-3 text-center font-bold border-b-4 border-indigo-600 text-indigo-600 uppercase text-[10px]' : 'flex-1 py-3 text-center font-bold text-slate-400 uppercase text-[10px]';
+            document.getElementById('tab-r').className = m === 'reg' ? 'flex-1 py-3 text-center font-bold border-b-4 border-indigo-600 text-indigo-600 uppercase text-[10px]' : 'flex-1 py-3 text-center font-bold text-slate-400 uppercase text-[10px]';
+        };
+
+        window.handleAuth = async () => {
+            const e = document.getElementById('email').value, p = document.getElementById('pass').value;
+            try {
+                if(mode === 'login') await signInWithEmailAndPassword(auth, e, p);
+                else {
+                    const n = document.getElementById('reg-name').value;
+                    const res = await createUserWithEmailAndPassword(auth, e, p);
+                    await updateProfile(res.user, { displayName: n });
+                }
+            } catch(err) { alert(err.message); }
+        };
+
+        window.loginGoogle = () => signInWithPopup(auth, new GoogleAuthProvider());
+        window.logout = () => signOut(auth).then(() => location.reload());
+
+        // সেশন ম্যানেজমেন্ট
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                document.getElementById('screen-auth').classList.add('hidden');
+                document.getElementById('screen-app').classList.remove('hidden');
+                syncProfile(user);
+                loadStories();
+            }
+        });
+
+        function syncProfile(user) {
+            const ref = doc(db, 'artifacts', appId, 'users', user.uid, 'profile');
+            onSnapshot(ref, (s) => {
+                if (s.exists()) {
+                    const d = s.data();
+                    document.getElementById('val-name').innerText = d.name;
+                    document.getElementById('val-email').innerText = d.email;
+                    document.getElementById('val-earnings').innerText = (d.earnings || 0).toFixed(2);
+                    document.getElementById('val-initial').innerText = d.name.charAt(0).toUpperCase();
+                } else {
+                    setDoc(ref, { name: user.displayName || "User", email: user.email, earnings: 0, role: 'user' });
+                }
+            });
+        }
+
+        function loadStories() {
+            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'stories'), (snap) => {
+                const feed = document.getElementById('story-feed');
+                feed.innerHTML = '';
+                if(snap.empty) feed.innerHTML = '<div class="text-center py-20 text-slate-400 italic">কোনো গল্প নেই।</div>';
+                snap.forEach(d => {
+                    const story = d.data();
+                    feed.innerHTML += `<div class="bg-white p-6 rounded-[2rem] border shadow-sm"><h3 class="font-black text-xl text-slate-800">${story.title}</h3><p class="text-sm text-slate-600 mt-2">${story.content}</p><div class="text-[10px] font-black text-indigo-500 mt-4 uppercase">Writer: ${story.authorName}</div></div>`;
+                });
+            });
+        }
+
+        window.publishStory = async () => {
+            const t = document.getElementById('post-title').value, c = document.getElementById('post-content').value;
+            if(!t || !c) return alert("গল্প লিখুন!");
+            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'stories'), {
+                title: t, content: c, authorName: auth.currentUser.displayName, createdAt: serverTimestamp()
+            });
+            alert("পাবলিশ হয়েছে!");
+            switchTab('home');
+        };
+
+        window.switchTab = (tab) => {
+            ['home', 'write', 'wallet', 'profile'].forEach(t => {
+                document.getElementById('sec-'+t).classList.add('hidden');
+                document.getElementById('nav-'+t).classList.remove('active');
+            });
+            document.getElementById('sec-'+tab).classList.remove('hidden');
+            document.getElementById('nav-'+tab).classList.add('active');
+        };
+    </script>
+</body>
+</html>
