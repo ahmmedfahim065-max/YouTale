@@ -1,148 +1,147 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>YouTale - Home</title>
+    <title>YouTale - Premium Story Feed</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700;900&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700;900&family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        :root { --bg-dark: #070707; --accent: #ff003c; --card-bg: #121212; }
-        body { background-color: var(--bg-dark); color: white; font-family: 'Inter', sans-serif; margin: 0; padding-bottom: 80px; -webkit-tap-highlight-color: transparent; }
-        .logo { font-family: 'Poppins', sans-serif; font-weight: 900; color: var(--accent); font-style: italic; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
+        :root { --accent: #ff003c; --bg-black: #0a0a0a; --card-bg: #161616; }
+        body { background-color: var(--bg-black); color: #fff; font-family: 'Hind Siliguri', sans-serif; overflow-x: hidden; }
+        .font-brand { font-family: 'Poppins', sans-serif; }
         
-        .cat-pill { flex: 0 0 auto; background: #1a1a1a; padding: 8px 18px; border-radius: 50px; font-size: 13px; font-weight: 600; cursor: pointer; border: 1px solid rgba(255,255,255,0.05); transition: all 0.2s; }
-        .cat-pill.active { background: var(--accent); color: white; border-color: var(--accent); box-shadow: 0 4px 15px rgba(255, 0, 60, 0.3); }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { height: 4px; }
+        ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 10px; }
+
+        .cat-chip { flex: 0 0 auto; padding: 8px 18px; border-radius: 12px; font-size: 14px; font-weight: 700; background: #222; border: 1px solid #333; cursor: pointer; transition: 0.3s; }
+        .cat-chip.active { background: var(--accent); border-color: var(--accent); color: white; box-shadow: 0 4px 15px rgba(255, 0, 60, 0.4); }
+
+        .story-card { position: relative; border-radius: 18px; overflow: hidden; background: var(--card-bg); transition: transform 0.3s; }
+        .story-card:active { transform: scale(0.97); }
+        .story-thumb { width: 100%; aspect-ratio: 2/3; object-fit: cover; }
+        .story-info { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,0.9) 70%); padding: 15px 12px; }
+
+        .trending-badge { position: absolute; top: 10px; left: 10px; background: rgba(255, 0, 60, 0.85); color: white; padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 900; text-transform: uppercase; z-index: 10; display: flex; align-items: center; gap: 4px; }
         
-        .story-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 0 12px; }
-        .story-card { position: relative; width: 100%; aspect-ratio: 2 / 3; border-radius: 12px; overflow: hidden; background: var(--card-bg); transition: transform 0.2s; }
-        .story-card:active { transform: scale(0.96); }
-        .card-img { width: 100%; height: 100%; object-fit: cover; }
-        .card-gradient { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.95) 10%, rgba(0,0,0,0.4) 40%, transparent 80%); }
-        .card-content { position: absolute; bottom: 0; left: 0; right: 0; padding: 10px; }
-        
-        .full-modal { display: none; position: fixed; inset: 0; background: var(--bg-dark); z-index: 2000; overflow-y: auto; }
-        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-        .animate-up { animation: slideUp 0.3s cubic-bezier(0, 0, 0.2, 1); }
+        /* Reader Styling */
+        .reader-view { display: none; position: fixed; inset: 0; background: var(--bg-black); z-index: 1000; overflow-y: auto; }
+        .reader-content { max-width: 600px; margin: 0 auto; padding: 20px; line-height: 1.8; font-size: 19px; color: #e5e5e5; }
     </style>
 </head>
-<body>
+<body class="pb-24">
 
-    <!-- Header -->
-    <header class="fixed top-0 w-full bg-black/80 backdrop-blur-lg z-50 px-4 py-4 flex justify-between items-center border-b border-white/5">
-        <h1 class="text-2xl logo tracking-tighter">YouTale</h1>
+    <!-- Top Bar -->
+    <header class="sticky top-0 z-50 bg-black/80 backdrop-blur-xl p-5 flex justify-between items-center border-b border-white/5">
+        <div class="flex items-center gap-2">
+            <span class="text-3xl text-red-600 font-brand italic font-black">YouTale</span>
+        </div>
         <div class="flex gap-4 items-center">
-            <button class="w-9 h-9 bg-white/10 rounded-full flex items-center justify-center text-xl">🔍</button>
-            <div id="u-avatar" class="w-9 h-9 bg-gradient-to-tr from-pink-600 to-red-600 rounded-full flex items-center justify-center font-bold text-xs border border-white/20">U</div>
+            <button class="text-xl">🔍</button>
+            <div id="user-p" onclick="window.location.href='profile.html'" class="w-9 h-9 bg-gradient-to-tr from-red-600 to-orange-500 rounded-full border-2 border-white/20 flex items-center justify-center font-bold text-sm">U</div>
         </div>
     </header>
 
-    <!-- Categories -->
-    <div class="fixed top-[68px] w-full bg-black/80 backdrop-blur-md py-3 px-4 z-40 border-b border-white/5 flex gap-2 overflow-x-auto no-scrollbar">
-        <div class="cat-pill active" onclick="setCat('All', this)">All</div>
-        <div class="cat-pill" onclick="setCat('Trending', this)">🔥 Trending</div>
-        <div class="cat-pill" onclick="setCat('Horror', this)">Horror</div>
-        <div class="cat-pill" onclick="setCat('Islamic', this)">Islamic</div>
-        <div class="cat-pill" onclick="setCat('Romance', this)">Romance</div>
+    <!-- Category Selector -->
+    <div class="flex gap-3 overflow-x-auto p-4 no-scrollbar">
+        <div class="cat-chip active" onclick="filterBy('All', this)">All Stories</div>
+        <div class="cat-chip" onclick="filterBy('Trending', this)">Trending 🔥</div>
+        <div class="cat-chip" onclick="filterBy('Horror', this)">Horror 👻</div>
+        <div class="cat-chip" onclick="filterBy('Islamic', this)">Islamic 🌙</div>
+        <div class="cat-chip" onclick="filterBy('Romance', this)">Romance ❤️</div>
+        <div class="cat-chip" onclick="filterBy('Sci-Fi', this)">Sci-Fi 🚀</div>
+        <div class="cat-chip" onclick="filterBy('Motivational', this)">Motivational 💪</div>
+        <div class="cat-chip" onclick="filterBy('Educational', this)">Educational 📚</div>
+        <div class="cat-chip" onclick="filterBy('True Stories', this)">True Stories 📖</div>
     </div>
 
-    <!-- Feed -->
-    <main class="mt-[140px]" id="main-content">
-        <div class="story-grid" id="story-feed">
-            <div class="col-span-2 py-20 text-center text-gray-600 italic">গল্প লোড হচ্ছে...</div>
+    <!-- Main Feed -->
+    <div class="px-3" id="main-feed">
+        <div class="grid grid-cols-2 gap-3" id="grid-container">
+            <!-- Stories will load here -->
         </div>
-    </main>
-
-    <!-- Floating Action: REDIRECT TO STUDIO -->
-    <button onclick="window.location.href='studio.html'" class="fixed bottom-24 right-6 w-14 h-14 bg-red-600 rounded-full shadow-2xl flex items-center justify-center text-2xl z-40 active:scale-90 transition-all">➕</button>
-
-    <!-- Reader View -->
-    <div id="reader-view" class="full-modal animate-up">
-        <div id="reader-content"></div>
     </div>
 
-    <!-- Nav -->
-    <nav class="fixed bottom-0 w-full h-20 bg-black/90 backdrop-blur-xl border-t border-white/5 flex justify-around items-center z-50 px-2">
-        <div class="flex flex-col items-center gap-1 text-red-500">
+    <!-- Navigation Bar -->
+    <nav class="fixed bottom-0 w-full bg-black/95 border-t border-white/5 p-4 flex justify-around items-center z-50">
+        <button class="text-red-500 flex flex-col items-center gap-1">
             <span class="text-2xl">🏠</span>
-            <span class="text-[10px] font-bold uppercase tracking-wider">Home</span>
-        </div>
-        <div class="flex flex-col items-center gap-1 text-gray-500" onclick="setCat('Trending', document.querySelectorAll('.cat-pill')[1])">
-            <span class="text-2xl">🔥</span>
-            <span class="text-[10px] font-bold uppercase tracking-wider">Trending</span>
-        </div>
-        <div class="flex flex-col items-center gap-1 text-gray-500">
+            <span class="text-[10px] font-bold">Home</span>
+        </button>
+        <button onclick="window.location.href='studio.html'" class="bg-red-600 w-14 h-14 -mt-10 rounded-full flex items-center justify-center shadow-lg shadow-red-600/30 border-4 border-black">
+            <span class="text-3xl text-white">➕</span>
+        </button>
+        <button onclick="window.location.href='profile.html'" class="text-gray-500 flex flex-col items-center gap-1">
             <span class="text-2xl">👤</span>
-            <span class="text-[10px] font-bold uppercase tracking-wider">Profile</span>
-        </div>
+            <span class="text-[10px] font-bold">Profile</span>
+        </button>
     </nav>
+
+    <!-- Full Screen Reader -->
+    <div id="reader" class="reader-view"></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, onSnapshot, doc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, onSnapshot, doc, updateDoc, increment, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const firebaseConfig = JSON.parse(__firebase_config);
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const appId = "YouTale-Pro-V1";
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'YouTale-Pro-V1';
 
-        let allStories = [];
-        let currentFilter = "All";
+        let stories = [];
+        let filter = 'All';
 
-        onAuthStateChanged(auth, user => {
-            if(user) document.getElementById('u-avatar').innerText = user.displayName ? user.displayName[0] : 'U';
-            initApp();
+        // Auth
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) await signInAnonymously(auth);
+            else {
+                document.getElementById('user-p').innerText = user.uid.substring(0, 1).toUpperCase();
+                fetchStories();
+            }
         });
 
-        function initApp() {
+        function fetchStories() {
             const ref = collection(db, 'artifacts', appId, 'public', 'data', 'stories');
             onSnapshot(ref, (snap) => {
-                allStories = [];
-                snap.forEach(d => {
-                    const data = d.data();
-                    // শুধুমাত্র Public গল্পগুলো হোম ফিডে দেখাবে
-                    if(data.status !== 'private') {
-                        allStories.push({id: d.id, ...data});
-                    }
-                });
-                renderFeed();
-            }, (err) => console.error(err));
+                stories = [];
+                snap.forEach(d => stories.push({ id: d.id, ...d.data() }));
+                render();
+            });
         }
 
-        window.setCat = (cat, el) => {
-            currentFilter = cat;
-            document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('active'));
+        window.filterBy = (cat, el) => {
+            filter = cat;
+            document.querySelectorAll('.cat-chip').forEach(c => c.classList.remove('active'));
             el.classList.add('active');
-            renderFeed();
-        }
+            render();
+        };
 
-        function renderFeed() {
-            const feed = document.getElementById('story-feed');
-            let data = [...allStories];
+        function render() {
+            const container = document.getElementById('grid-container');
+            let data = stories;
 
-            if(currentFilter === "Trending") {
-                data.sort((a,b) => (b.views||0) - (a.views||0));
-            } else if(currentFilter !== "All") {
-                data = data.filter(s => s.category === currentFilter);
+            if (filter === 'Trending') {
+                data = [...stories].sort((a, b) => ((b.views || 0) + (b.likes || 0)) - ((a.views || 0) + (a.likes || 0)));
+            } else if (filter !== 'All') {
+                data = stories.filter(s => s.category === filter);
             }
 
-            if(data.length === 0) {
-                feed.innerHTML = '<div class="col-span-2 py-20 text-center text-gray-600">কোনো গল্প পাওয়া যায়নি</div>';
-                return;
-            }
-
-            feed.innerHTML = data.map(s => `
-                <div class="story-card shadow-2xl" onclick="openStory('${s.id}')">
-                    <img src="${s.poster}" class="card-img" onerror="this.src='https://images.unsplash.com/photo-1519681393784-d120267953ba'">
-                    <div class="card-gradient"></div>
-                    <div class="card-content">
-                        <h3 class="font-bold text-sm line-clamp-2">${s.title}</h3>
-                        <div class="flex justify-between items-center mt-2 text-[10px] text-white/70">
-                            <span>${s.authorName}</span>
-                            <span>👁️ ${s.views || 0}</span>
+            container.innerHTML = data.map(s => `
+                <div class="story-card shadow-xl" onclick="openStory('${s.id}')">
+                    ${(s.views + s.likes) > 10 ? `<div class="trending-badge"><span>🔥</span> Trending</div>` : ''}
+                    <img src="${s.poster}" class="story-thumb" loading="lazy">
+                    <div class="story-info">
+                        <h3 class="text-sm font-bold leading-tight line-clamp-2">${s.title}</h3>
+                        <div class="flex items-center justify-between mt-2">
+                            <span class="text-[9px] text-gray-400 font-semibold truncate w-20">✍️ ${s.authorName}</span>
+                            <div class="flex gap-2 text-[9px] font-black text-white/80">
+                                <span>👁️ ${s.views || 0}</span>
+                                <span>❤️ ${s.likes || 0}</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -150,27 +149,61 @@
         }
 
         window.openStory = async (id) => {
-            const s = allStories.find(item => item.id === id);
+            const s = stories.find(x => x.id === id);
             if(!s) return;
-            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'stories', id);
-            await updateDoc(docRef, { views: increment(1) });
 
-            document.getElementById('reader-view').style.display = 'block';
-            document.getElementById('reader-content').innerHTML = `
+            // Increment View
+            await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'stories', id), { views: increment(1) });
+
+            const reader = document.getElementById('reader');
+            reader.style.display = 'block';
+            reader.innerHTML = `
                 <div class="relative w-full aspect-[2/3]">
-                    <img src="${s.poster}" class="w-full h-full object-cover">
-                    <button onclick="closeStory()" class="absolute top-8 left-6 w-10 h-10 bg-black/40 rounded-full flex items-center justify-center text-xl">✕</button>
+                    <img src="${s.poster}" class="w-full h-full object-cover shadow-2xl">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
+                    <button onclick="document.getElementById('reader').style.display='none'" class="absolute top-10 left-5 w-10 h-10 bg-black/40 backdrop-blur-md rounded-full flex items-center justify-center text-xl">✕</button>
+                    <div class="absolute bottom-10 left-6 right-6">
+                        <span class="bg-red-600 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">${s.category}</span>
+                        <h1 class="text-3xl font-black mt-3 leading-tight">${s.title}</h1>
+                        <div class="flex items-center justify-between mt-6">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-red-600 rounded-full border-2 border-white/20 flex items-center justify-center font-bold">${s.authorName[0]}</div>
+                                <div>
+                                    <p class="text-sm font-bold">${s.authorName}</p>
+                                    <p class="text-[10px] text-gray-400">Published Author</p>
+                                </div>
+                            </div>
+                            <button onclick="likeStory('${s.id}')" class="bg-white/10 backdrop-blur-md px-5 py-2 rounded-xl flex items-center gap-2 font-bold active:scale-90 transition-all">
+                                <span>❤️</span> <span id="like-count-${s.id}">${s.likes || 0}</span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                <div class="px-6 -mt-20 relative z-10 bg-black/80 backdrop-blur-xl rounded-t-3xl p-6">
-                    <span class="text-red-500 font-bold uppercase text-xs">${s.category}</span>
-                    <h1 class="text-3xl font-black mt-2 leading-tight">${s.title}</h1>
-                    <p class="text-gray-400 mt-2">লিখেছেন: ${s.authorName}</p>
-                    <div class="mt-8 text-lg leading-relaxed text-gray-300 pb-32 whitespace-pre-wrap">${s.content}</div>
+                <div class="reader-content pb-32">
+                    <p class="whitespace-pre-wrap">${s.content}</p>
+                </div>
+                <!-- Bottom Action -->
+                <div class="fixed bottom-0 w-full p-6 bg-gradient-to-t from-black to-transparent flex gap-3">
+                    <button class="flex-1 bg-white text-black py-4 rounded-2xl font-black text-sm uppercase">Save for later</button>
+                    <button class="flex-1 bg-red-600 text-white py-4 rounded-2xl font-black text-sm uppercase">Follow Author</button>
                 </div>
             `;
-        }
+        };
 
-        window.closeStory = () => document.getElementById('reader-view').style.display = 'none';
+        window.likeStory = async (id) => {
+            const uid = auth.currentUser.uid;
+            const likeRef = doc(db, 'artifacts', appId, 'users', uid, 'liked_stories', id);
+            
+            const check = await getDoc(likeRef);
+            if(check.exists()) return alert("আপনি ইতিমধ্যে লাইক দিয়েছেন!");
+
+            await setDoc(likeRef, { liked: true });
+            await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'stories', id), { likes: increment(1) });
+            
+            const countEl = document.getElementById(`like-count-${id}`);
+            if(countEl) countEl.innerText = parseInt(countEl.innerText) + 1;
+        };
+
     </script>
 </body>
 </html>
