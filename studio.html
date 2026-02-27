@@ -3,60 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>YouTale Fixer</title>
+    <title>YouTale Studio - Ultimate</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background: #080808; color: white; font-family: sans-serif; }
-        .status-card { background: #111; border: 1px solid #222; padding: 20px; border-radius: 15px; margin-bottom: 10px; }
-        .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; margin-right: 10px; }
-        .bg-wait { background: #eab308; }
-        .bg-ok { background: #22c55e; }
-        .bg-err { background: #ef4444; }
+        body { background: #000; color: #fff; font-family: sans-serif; padding: 20px; }
+        .box { background: #121212; border: 1px solid #333; padding: 15px; border-radius: 12px; width: 100%; color: white; margin-top: 10px; outline: none; }
+        .box:focus { border-color: #ff003c; }
+        .tab-btn { flex: 1; padding: 10px; font-size: 12px; font-weight: bold; background: #1a1a1a; color: #666; transition: 0.3s; }
+        .tab-btn.active { background: #ff003c; color: #fff; }
+        .preview-area { width: 140px; aspect-ratio: 2/3; border: 2px dashed #444; border-radius: 15px; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; overflow: hidden; background: #080808; }
+        #img-prev { width: 100%; height: 100%; object-fit: cover; display: none; }
     </style>
 </head>
-<body class="p-5">
+<body class="pb-20">
 
     <div class="max-w-md mx-auto">
-        <h1 class="text-2xl font-black text-red-600 mb-6 italic text-center">YOUTALE DIAGNOSTIC</h1>
+        <header class="flex justify-between items-center mb-6">
+            <button onclick="window.history.back()" class="text-gray-500">← ফিরে যান</button>
+            <h2 class="text-xl font-black text-red-600 italic">CREATOR STUDIO</h2>
+        </header>
 
-        <!-- Diagnostic Status -->
-        <div class="status-card">
-            <h3 class="text-sm font-bold text-gray-500 uppercase mb-4">সিস্টেম চেকআপ</h3>
-            
-            <div class="flex items-center mb-4">
-                <span id="auth-dot" class="dot bg-wait"></span>
-                <div>
-                    <p class="text-sm font-bold">Authentication</p>
-                    <p id="auth-msg" class="text-[10px] text-gray-500">চেক করা হচ্ছে...</p>
-                </div>
-            </div>
-
-            <div class="flex items-center mb-4">
-                <span id="db-dot" class="dot bg-wait"></span>
-                <div>
-                    <p class="text-sm font-bold">Firestore Database</p>
-                    <p id="db-msg" class="text-[10px] text-gray-500">কানেকশন চেক হচ্ছে...</p>
-                </div>
+        <!-- Image Preview Area -->
+        <div class="preview-area" id="preview-container">
+            <img id="img-prev">
+            <div id="pl-text" class="text-center">
+                <p class="text-2xl">🖼️</p>
+                <p class="text-[9px] text-gray-500 uppercase mt-2">থাম্বনেইল প্রিভিউ</p>
             </div>
         </div>
 
-        <!-- Hidden Upload Section (Only shows if OK) -->
-        <div id="upload-box" class="mt-8 opacity-30 pointer-events-none">
-            <div class="bg-zinc-900 p-6 rounded-2xl border-2 border-dashed border-zinc-800 text-center cursor-pointer" onclick="document.getElementById('f').click()">
-                <img id="p" class="hidden w-full aspect-[2/3] object-cover rounded-lg mb-4">
-                <p id="pl" class="text-gray-500 font-bold">➕ গ্যালারি থেকে ছবি নিন</p>
-            </div>
-            <input type="file" id="f" accept="image/*" class="hidden">
-            
-            <input type="text" id="t" placeholder="গল্পের শিরোনাম" class="w-full bg-zinc-900 p-4 mt-4 rounded-xl border border-zinc-800 outline-none">
-            <textarea id="c" placeholder="গল্প লিখুন..." class="w-full bg-zinc-900 p-4 mt-4 rounded-xl border border-zinc-800 h-32 outline-none"></textarea>
-            
-            <button id="pub" class="w-full bg-red-600 py-4 mt-6 rounded-xl font-black text-lg">পাবলিশ টেস্ট 🚀</button>
+        <!-- Tab Selector -->
+        <div class="flex rounded-lg overflow-hidden border border-white/10 mb-5">
+            <button id="tab-file" class="tab-btn active" onclick="switchTab('file')">গ্যালারি থেকে</button>
+            <button id="tab-link" class="tab-btn" onclick="switchTab('link')">লিংক দিয়ে</button>
         </div>
 
-        <div id="error-box" class="mt-6 p-4 bg-red-950/30 border border-red-900/50 rounded-xl hidden">
-            <p class="text-red-500 text-xs font-mono" id="error-details"></p>
+        <!-- Input Area -->
+        <div id="file-input-section">
+            <input type="file" id="file-field" accept="image/*" class="box text-xs">
+            <p class="text-[9px] text-gray-500 mt-2 ml-1">১ এমবি-র কম সাইজের ছবি দিন</p>
         </div>
+        <div id="link-input-section" class="hidden">
+            <input type="text" id="link-field" placeholder="ছবির ডাইরেক্ট লিংক (URL) দিন..." class="box">
+            <p class="text-[9px] text-gray-500 mt-2 ml-1">যেমন: https://example.com/image.jpg</p>
+        </div>
+
+        <!-- Story Details -->
+        <div class="mt-6">
+            <label class="text-[10px] text-gray-500 font-bold uppercase ml-1">গল্পের শিরোনাম</label>
+            <input type="text" id="title" class="box" placeholder="এখানে নাম লিখুন...">
+            
+            <label class="text-[10px] text-gray-500 font-bold uppercase ml-1 mt-4 block">ক্যাটাগরি</label>
+            <select id="cat" class="box">
+                <option value="Horror">Horror 👻</option>
+                <option value="Islamic">Islamic 🌙</option>
+                <option value="True Story">True Story 📖</option>
+                <option value="Fairy Tales">Fairy Tales 🧚</option>
+            </select>
+
+            <label class="text-[10px] text-gray-500 font-bold uppercase ml-1 mt-4 block">মূল গল্প</label>
+            <textarea id="content" class="box h-40" placeholder="আপনার গল্পটি লিখুন..."></textarea>
+
+            <button id="publish-btn" class="w-full bg-red-600 py-4 rounded-xl font-black text-lg mt-8 shadow-lg shadow-red-600/20 active:scale-95 transition-all">গল্প পাবলিশ করুন 🚀</button>
+        </div>
+
+        <div id="debug" class="mt-5 p-3 bg-red-900/10 text-red-500 text-[10px] rounded hidden border border-red-900/20"></div>
     </div>
 
     <script type="module">
@@ -68,83 +79,98 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'YouTale-Debug';
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'YouTale-Pro-V1';
 
-        let imgData = "";
+        let finalImage = "";
+        let currentMode = "file";
 
-        async function startCheck() {
-            // 1. Auth Check
-            try {
-                await signInAnonymously(auth);
-                document.getElementById('auth-dot').className = "dot bg-ok";
-                document.getElementById('auth-msg').innerText = "সফলভাবে লগইন হয়েছে। (Anonymous Auth OK)";
-            } catch (e) {
-                document.getElementById('auth-dot').className = "dot bg-err";
-                document.getElementById('auth-msg').innerText = "Auth Error: ফায়ারবেসে Anonymous লগইন অন করুন।";
-                showError(e.message);
-                return;
-            }
+        // Tab Switching
+        window.switchTab = (mode) => {
+            currentMode = mode;
+            document.getElementById('tab-file').classList.toggle('active', mode === 'file');
+            document.getElementById('tab-link').classList.toggle('active', mode === 'link');
+            document.getElementById('file-input-section').classList.toggle('hidden', mode === 'link');
+            document.getElementById('link-input-section').classList.toggle('hidden', mode === 'file');
+            
+            // Reset Preview
+            document.getElementById('img-prev').style.display = 'none';
+            document.getElementById('pl-text').style.display = 'block';
+            finalImage = "";
+        };
 
-            // 2. Database Connection Check
-            try {
-                // আমরা জাস্ট একটা টেস্ট ডাটা পাঠানোর চেষ্টা করবো
-                document.getElementById('db-dot').className = "dot bg-ok";
-                document.getElementById('db-msg').innerText = "ডাটাবেস কানেকশন ঠিক আছে।";
-                
-                // সবকিছু ঠিক থাকলে আপলোড বক্স আনলক করো
-                document.getElementById('upload-box').classList.remove('opacity-30', 'pointer-events-none');
-            } catch (e) {
-                document.getElementById('db-dot').className = "dot bg-err";
-                document.getElementById('db-msg').innerText = "Database Error: রুলস চেক করুন।";
-                showError(e.message);
-            }
-        }
-
-        function showError(m) {
-            document.getElementById('error-box').classList.remove('hidden');
-            document.getElementById('error-details').innerText = m;
-        }
-
-        document.getElementById('f').onchange = (e) => {
-            const r = new FileReader();
-            r.onload = (ev) => {
+        // File Selection with Auto-Resize
+        document.getElementById('file-field').onchange = (e) => {
+            const file = e.target.files[0];
+            if(!file) return;
+            const reader = new FileReader();
+            reader.onload = (re) => {
                 const img = new Image();
                 img.onload = () => {
                     const canvas = document.createElement('canvas');
                     canvas.width = 400; canvas.height = 600;
-                    canvas.getContext('2d').drawImage(img,0,0,400,600);
-                    imgData = canvas.toDataURL('image/jpeg', 0.5);
-                    document.getElementById('p').src = imgData;
-                    document.getElementById('p').classList.remove('hidden');
-                    document.getElementById('pl').classList.add('hidden');
-                }
-                img.src = ev.target.result;
+                    canvas.getContext('2d').drawImage(img, 0, 0, 400, 600);
+                    finalImage = canvas.toDataURL('image/jpeg', 0.5); // Low quality to ensure save
+                    updatePreview(finalImage);
+                };
+                img.src = re.target.result;
             };
-            r.readAsDataURL(e.target.files[0]);
+            reader.readAsDataURL(file);
+        };
+
+        // Link Selection
+        document.getElementById('link-field').oninput = (e) => {
+            finalImage = e.target.value.trim();
+            if(finalImage.startsWith('http')) {
+                updatePreview(finalImage);
+            }
+        };
+
+        function updatePreview(src) {
+            const img = document.getElementById('img-prev');
+            img.src = src;
+            img.style.display = 'block';
+            document.getElementById('pl-text').style.display = 'none';
         }
 
-        document.getElementById('pub').onclick = async () => {
-            const btn = document.getElementById('pub');
-            btn.innerText = "প্রসেসিং...";
+        // Final Publish
+        document.getElementById('publish-btn').onclick = async () => {
+            const t = document.getElementById('title').value.trim();
+            const c = document.getElementById('content').value.trim();
+            const cat = document.getElementById('cat').value;
+            const btn = document.getElementById('publish-btn');
+
+            if(!t || !c || !finalImage) return alert("সব তথ্য এবং ছবি দিন!");
+
             btn.disabled = true;
+            btn.innerText = "সার্ভারে পাঠানো হচ্ছে...";
 
             try {
+                if(!auth.currentUser) await signInAnonymously(auth);
+
                 await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'stories'), {
-                    title: document.getElementById('t').value,
-                    content: document.getElementById('c').value,
-                    poster: imgData,
+                    title: t,
+                    content: c,
+                    poster: finalImage,
+                    category: cat,
+                    authorId: auth.currentUser.uid,
+                    authorName: "গল্পকার",
+                    views: 0,
+                    likes: 0,
                     createdAt: serverTimestamp()
                 });
-                alert("টেস্ট সাকসেস! আপনার ফায়ারবেস এখন পুরোপুরি কাজ করছে। 🎉");
-                location.reload();
-            } catch (e) {
-                showError("পাবলিশ এরর: " + e.message);
-                btn.disabled = false;
-                btn.innerText = "আবার চেষ্টা করুন";
-            }
-        }
 
-        window.onload = startCheck;
+                alert("আপনার গল্পটি সফলভাবে পাবলিশ হয়েছে! 🎉");
+                window.location.href = 'dashboard.html';
+
+            } catch (err) {
+                btn.disabled = false;
+                btn.innerText = "গল্প পাবলিশ করুন 🚀";
+                const deb = document.getElementById('debug');
+                deb.innerText = "ERROR: " + err.message;
+                deb.classList.remove('hidden');
+                console.error(err);
+            }
+        };
     </script>
 </body>
 </html>
