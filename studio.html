@@ -3,81 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>YouTale Studio - Ultra Fix</title>
+    <title>YouTale Studio - High Performance</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root { --bg-dark: #070707; --accent: #ff003c; }
         body { background-color: var(--bg-dark); color: white; font-family: 'Inter', sans-serif; margin: 0; }
-        .studio-card { background: #121212; border: 1px solid rgba(255,255,255,0.05); border-radius: 24px; }
+        .studio-card { background: #121212; border: 1px solid rgba(255,255,255,0.05); border-radius: 20px; }
         input, textarea, select { background: #1a1a1a !important; border: 1px solid #333 !important; color: white !important; }
-        
-        .preview-container { 
-            position: relative; 
-            width: 160px; 
+        .preview-box { 
+            width: 140px; 
             aspect-ratio: 2/3; 
             background: #1a1a1a; 
             border-radius: 12px; 
-            overflow: hidden; 
             border: 2px dashed #444; 
             margin: 0 auto;
+            position: relative;
+            cursor: pointer;
+            overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
-            cursor: pointer;
         }
-        #preview-img { width: 100%; height: 100%; object-fit: cover; display: none; position: absolute; inset: 0; z-index: 10; }
-        .upload-overlay { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-        
-        /* Loading Spinner */
-        .spinner { border: 3px solid rgba(255,255,255,0.1); border-top: 3px solid var(--accent); border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; display: none; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        #preview-img { width: 100%; height: 100%; object-fit: cover; display: none; }
+        .loading-ring { display: none; width: 20px; height: 20px; border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: #fff; animation: spin 1s ease-in-out infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
-<body class="p-4 pb-20">
+<body class="p-4">
 
     <header class="flex justify-between items-center py-4 mb-4">
-        <button onclick="window.history.back()" class="text-gray-400 font-bold flex items-center gap-2">← ফিরে যান</button>
-        <h1 class="text-xl font-black italic text-red-600">Studio</h1>
+        <button onclick="window.history.back()" class="text-gray-400 font-bold">← ফিরে যান</button>
+        <span class="text-red-600 font-black italic">STUDIO PRO</span>
     </header>
 
-    <div class="max-w-xl mx-auto">
+    <div class="max-w-lg mx-auto">
         <div class="studio-card p-6 space-y-6">
             
-            <!-- Image Selector -->
+            <!-- Thumbnail Picker -->
             <div class="text-center">
-                <div class="preview-container" id="drop-zone" onclick="document.getElementById('file-input').click()">
-                    <img id="preview-img" src="" alt="Thumbnail">
-                    <div id="upload-placeholder" class="upload-overlay">
-                        <span class="text-3xl mb-1">🖼️</span>
-                        <p class="text-[10px] font-bold text-gray-400">ছবি বাছুন</p>
+                <div class="preview-box" onclick="document.getElementById('file-input').click()">
+                    <img id="preview-img">
+                    <div id="placeholder" class="text-center">
+                        <p class="text-2xl">📸</p>
+                        <p class="text-[9px] font-bold text-gray-500 uppercase mt-1">গ্যালারি বাছুন</p>
                     </div>
                 </div>
                 <input type="file" id="file-input" accept="image/*" class="hidden">
-                <p id="img-info" class="text-[10px] text-gray-500 mt-2 italic">কোনো ছবি সিলেক্ট করা হয়নি</p>
+                <p id="status-text" class="text-[10px] text-gray-500 mt-2 italic">কোনো ছবি নেই</p>
             </div>
 
             <div class="space-y-4">
-                <input type="text" id="story-title" placeholder="গল্পের নাম..." class="w-full p-4 rounded-xl outline-none font-bold text-lg">
+                <input type="text" id="title" placeholder="গল্পের শিরোনাম..." class="w-full p-4 rounded-xl outline-none font-bold">
                 
                 <div class="grid grid-cols-2 gap-3">
-                    <select id="story-cat" class="p-4 rounded-xl outline-none font-semibold">
+                    <select id="category" class="p-4 rounded-xl outline-none font-semibold">
                         <option value="Horror">Horror 👻</option>
                         <option value="Islamic">Islamic 🌙</option>
                         <option value="Romance">Romance ❤️</option>
+                        <option value="Sci-Fi">Sci-Fi 🚀</option>
                     </select>
-                    <select id="story-status" class="p-4 rounded-xl outline-none font-semibold">
+                    <select id="privacy" class="p-4 rounded-xl outline-none font-semibold">
                         <option value="public">Public 🌐</option>
                         <option value="private">Private 🔒</option>
                     </select>
                 </div>
 
-                <textarea id="story-body" placeholder="গল্পটি লিখুন..." class="w-full p-4 rounded-xl h-48 outline-none"></textarea>
+                <textarea id="content" placeholder="আপনার গল্পটি এখানে লিখুন..." class="w-full p-4 rounded-xl h-44 outline-none leading-relaxed"></textarea>
             </div>
 
-            <button id="pub-btn" class="w-full bg-red-600 py-4 rounded-2xl font-black text-white flex justify-center items-center gap-3">
-                <span id="btn-text">PUBLISH STORY</span>
-                <div id="btn-spinner" class="spinner"></div>
+            <!-- Publish Button -->
+            <button id="publish-btn" class="w-full bg-red-600 py-4 rounded-xl font-black text-white flex items-center justify-center gap-3 active:scale-95 transition-all">
+                <div id="loader" class="loading-ring"></div>
+                <span id="btn-label">PUBLISH STORY</span>
             </button>
         </div>
     </div>
@@ -91,91 +89,91 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const appId = "YouTale-Pro-V1";
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'YouTale-Pro-V1';
 
-        let base64Data = "";
+        let compressedBase64 = "";
 
-        // ১. ছবি হ্যান্ডলিং - একদম সহজ পদ্ধতিতে
-        const fileInput = document.getElementById('file-input');
-        fileInput.addEventListener('change', function(e) {
+        // Image Compression Logic
+        document.getElementById('file-input').onchange = (e) => {
             const file = e.target.files[0];
             if (!file) return;
 
-            document.getElementById('img-info').innerText = "প্রসেসিং হচ্ছে...";
-
+            document.getElementById('status-text').innerText = "প্রসেসিং হচ্ছে...";
             const reader = new FileReader();
-            reader.onload = function(event) {
+            
+            reader.onload = (event) => {
                 const img = new Image();
-                img.onload = function() {
-                    // ছবি রিসাইজ করা (যাতে ডাটাবেসে লোড না হয়)
+                img.onload = () => {
                     const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 500;
+                    // পিক্সেল কমিয়ে ছোট করা (মোবাইলের জন্য ৪৫০ পিক্সেল যথেষ্ট)
+                    const MAX_WIDTH = 450;
                     const scale = MAX_WIDTH / img.width;
                     canvas.width = MAX_WIDTH;
                     canvas.height = img.height * scale;
-                    
+
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                    // ফাইল সাইজ ছোট করতে কোয়ালিটি ০.৫ (৫০%) করে দিলাম
+                    compressedBase64 = canvas.toDataURL('image/jpeg', 0.5);
                     
-                    base64Data = canvas.toDataURL('image/jpeg', 0.6); // কোয়ালিটি ৬০%
-                    
-                    const preview = document.getElementById('preview-img');
-                    preview.src = base64Data;
-                    preview.style.display = 'block';
-                    document.getElementById('img-info').innerText = "ছবি রেডি! ✅";
+                    document.getElementById('preview-img').src = compressedBase64;
+                    document.getElementById('preview-img').style.display = 'block';
+                    document.getElementById('placeholder').style.display = 'none';
+                    document.getElementById('status-text').innerText = "ছবি রেডি! ✅";
                 };
                 img.src = event.target.result;
             };
             reader.readAsDataURL(file);
-        });
+        };
 
-        // ২. পাবলিশ হ্যান্ডলিং
-        document.getElementById('pub-btn').onclick = async () => {
-            const title = document.getElementById('story-title').value.trim();
-            const body = document.getElementById('story-body').value.trim();
-            const cat = document.getElementById('story-cat').value;
-            const status = document.getElementById('story-status').value;
-
-            if(!title || !body || !base64Data) {
-                alert("সবগুলো তথ্য দিন (ছবিসহ)!");
+        // Publish Function
+        document.getElementById('publish-btn').onclick = async () => {
+            const storyTitle = document.getElementById('title').value.trim();
+            const storyBody = document.getElementById('content').value.trim();
+            
+            if(!storyTitle || !storyBody || !compressedBase64) {
+                alert("সবগুলো ঘর পূরণ করুন এবং একটি ছবি দিন!");
                 return;
             }
 
-            const btn = document.getElementById('pub-btn');
-            const btnText = document.getElementById('btn-text');
-            const spinner = document.getElementById('btn-spinner');
+            const btn = document.getElementById('publish-btn');
+            const label = document.getElementById('btn-label');
+            const loader = document.getElementById('loader');
 
             btn.disabled = true;
-            btnText.innerText = "পাবলিশ হচ্ছে...";
-            spinner.style.display = "block";
+            label.innerText = "পাবলিশ হচ্ছে...";
+            loader.style.display = "block";
 
             try {
-                // ইউজার লগইন না থাকলে গেস্ট হিসেবে সাইন ইন করবে (ফায়ারবেস রুলসের জন্য)
+                // ১. নিশ্চিত করা যে ইউজার অথেন্টিকেটেড (RULE 3)
                 if (!auth.currentUser) {
                     await signInAnonymously(auth);
                 }
 
+                // ২. ডাটাবেসে সেভ করা (RULE 1)
                 await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'stories'), {
-                    title,
-                    category: cat,
-                    poster: base64Data,
-                    content: body,
-                    status: status,
-                    authorName: auth.currentUser?.displayName || "User_" + Math.floor(Math.random()*1000),
-                    authorId: auth.currentUser?.uid || "guest",
+                    title: storyTitle,
+                    content: storyBody,
+                    poster: compressedBase64,
+                    category: document.getElementById('category').value,
+                    status: document.getElementById('privacy').value,
+                    authorName: auth.currentUser.displayName || "গল্পকার",
+                    authorId: auth.currentUser.uid,
                     views: 0,
                     likes: 0,
                     createdAt: serverTimestamp()
                 });
 
-                alert("সফলভাবে পাবলিশ হয়েছে!");
+                alert("আপনার গল্পটি সফলভাবে পাবলিশ হয়েছে! 🚀");
                 window.location.href = 'dashboard.html';
+                
             } catch (err) {
-                console.error(err);
-                alert("ভুল হয়েছে: " + err.message);
+                console.error("Publish Error:", err);
+                alert("দুঃখিত, পাবলিশ হয়নি। আবার চেষ্টা করুন।");
                 btn.disabled = false;
-                btnText.innerText = "PUBLISH STORY";
-                spinner.style.display = "none";
+                label.innerText = "PUBLISH STORY";
+                loader.style.display = "none";
             }
         };
     </script>
