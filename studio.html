@@ -1,81 +1,69 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>YouTale Studio - High Performance</title>
+    <title>YouTale Studio - Create Story</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        :root { --bg-dark: #070707; --accent: #ff003c; }
-        body { background-color: var(--bg-dark); color: white; font-family: 'Inter', sans-serif; margin: 0; }
-        .studio-card { background: #121212; border: 1px solid rgba(255,255,255,0.05); border-radius: 20px; }
-        input, textarea, select { background: #1a1a1a !important; border: 1px solid #333 !important; color: white !important; }
-        .preview-box { 
-            width: 140px; 
-            aspect-ratio: 2/3; 
-            background: #1a1a1a; 
-            border-radius: 12px; 
-            border: 2px dashed #444; 
-            margin: 0 auto;
-            position: relative;
-            cursor: pointer;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+        :root { --accent: #ff003c; }
+        body { background: #070707; color: white; font-family: sans-serif; padding: 20px; }
+        .input-box { background: #121212; border: 1px solid #333; width: 100%; padding: 15px; border-radius: 12px; margin-top: 8px; color: white; outline: none; transition: 0.3s; }
+        .input-box:focus { border-color: var(--accent); }
+        .preview { width: 180px; aspect-ratio: 2/3; background: #161616; border: 2px dashed #444; border-radius: 15px; margin: 0 auto; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; cursor: pointer; }
         #preview-img { width: 100%; height: 100%; object-fit: cover; display: none; }
-        .loading-ring { display: none; width: 20px; height: 20px; border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: #fff; animation: spin 1s ease-in-out infinite; }
+        .loader { width: 22px; height: 22px; border: 3px solid #fff3; border-top: 3px solid var(--accent); border-radius: 50%; animation: spin 1s linear infinite; display: none; }
         @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
-<body class="p-4">
+<body class="pb-10">
 
-    <header class="flex justify-between items-center py-4 mb-4">
-        <button onclick="window.history.back()" class="text-gray-400 font-bold">← ফিরে যান</button>
-        <span class="text-red-600 font-black italic">STUDIO PRO</span>
-    </header>
+    <button onclick="window.location.href='dashboard.html'" class="text-gray-400 font-bold mb-6">← ফিরে যান</button>
+    
+    <div class="max-w-md mx-auto">
+        <h2 class="text-2xl font-black mb-6 text-red-600 italic">CREATE STORY</h2>
+        
+        <div class="preview shadow-2xl" onclick="document.getElementById('f').click()">
+            <img id="preview-img">
+            <div id="label" class="text-center p-4">
+                <p class="text-3xl">🖼️</p>
+                <p class="text-[10px] text-gray-500 font-bold mt-2 uppercase">১০৮০ × ১৬২০ মাপের ছবি বাছুন</p>
+            </div>
+        </div>
+        <input type="file" id="f" accept="image/*" class="hidden" onchange="process(event)">
 
-    <div class="max-w-lg mx-auto">
-        <div class="studio-card p-6 space-y-6">
-            
-            <!-- Thumbnail Picker -->
-            <div class="text-center">
-                <div class="preview-box" onclick="document.getElementById('file-input').click()">
-                    <img id="preview-img">
-                    <div id="placeholder" class="text-center">
-                        <p class="text-2xl">📸</p>
-                        <p class="text-[9px] font-bold text-gray-500 uppercase mt-1">গ্যালারি বাছুন</p>
-                    </div>
-                </div>
-                <input type="file" id="file-input" accept="image/*" class="hidden">
-                <p id="status-text" class="text-[10px] text-gray-500 mt-2 italic">কোনো ছবি নেই</p>
+        <div class="mt-8 space-y-5">
+            <div>
+                <label class="text-[10px] text-gray-500 font-black uppercase tracking-widest">গল্পের শিরোনাম</label>
+                <input type="text" id="t" class="input-box" placeholder="আপনার গল্পের নাম...">
             </div>
 
-            <div class="space-y-4">
-                <input type="text" id="title" placeholder="গল্পের শিরোনাম..." class="w-full p-4 rounded-xl outline-none font-bold">
-                
-                <div class="grid grid-cols-2 gap-3">
-                    <select id="category" class="p-4 rounded-xl outline-none font-semibold">
+            <div class="grid grid-cols-1 gap-4">
+                <div>
+                    <label class="text-[10px] text-gray-500 font-black uppercase tracking-widest">ক্যাটাগরি সিলেক্ট করুন</label>
+                    <select id="c" class="input-box font-bold">
                         <option value="Horror">Horror 👻</option>
-                        <option value="Islamic">Islamic 🌙</option>
+                        <option value="Fairy Tales">Fairy Tales 🧚</option>
                         <option value="Romance">Romance ❤️</option>
+                        <option value="Motivational">Motivational 💪</option>
+                        <option value="Educational">Educational 📚</option>
+                        <option value="Islamic">Islamic 🌙</option>
+                        <option value="True Stories">True Stories 📖</option>
                         <option value="Sci-Fi">Sci-Fi 🚀</option>
-                    </select>
-                    <select id="privacy" class="p-4 rounded-xl outline-none font-semibold">
-                        <option value="public">Public 🌐</option>
-                        <option value="private">Private 🔒</option>
+                        <option value="Religious Stories">Religious Stories ✨</option>
+                        <option value="News">News 📰</option>
                     </select>
                 </div>
-
-                <textarea id="content" placeholder="আপনার গল্পটি এখানে লিখুন..." class="w-full p-4 rounded-xl h-44 outline-none leading-relaxed"></textarea>
             </div>
 
-            <!-- Publish Button -->
-            <button id="publish-btn" class="w-full bg-red-600 py-4 rounded-xl font-black text-white flex items-center justify-center gap-3 active:scale-95 transition-all">
-                <div id="loader" class="loading-ring"></div>
-                <span id="btn-label">PUBLISH STORY</span>
+            <div>
+                <label class="text-[10px] text-gray-500 font-black uppercase tracking-widest">পুরো গল্পটি লিখুন</label>
+                <textarea id="b" class="input-box h-56 leading-relaxed" placeholder="গল্পের মূল অংশ এখানে লিখুন..."></textarea>
+            </div>
+
+            <button id="btn" onclick="save()" class="w-full bg-red-600 py-5 rounded-2xl font-black text-white flex items-center justify-center gap-3 shadow-xl active:scale-95 transition-all">
+                <div id="spin" class="loader"></div>
+                <span id="txt">PUBLISH STORY</span>
             </button>
         </div>
     </div>
@@ -83,97 +71,71 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, serverTimestamp, doc, getDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        const firebaseConfig = JSON.parse(__firebase_config);
-        const app = initializeApp(firebaseConfig);
+        const config = JSON.parse(__firebase_config);
+        const app = initializeApp(config);
         const auth = getAuth(app);
         const db = getFirestore(app);
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'YouTale-Pro-V1';
 
-        let compressedBase64 = "";
+        let imgData = "";
 
-        // Image Compression Logic
-        document.getElementById('file-input').onchange = (e) => {
+        window.process = (e) => {
             const file = e.target.files[0];
-            if (!file) return;
-
-            document.getElementById('status-text').innerText = "প্রসেসিং হচ্ছে...";
+            if(!file) return;
             const reader = new FileReader();
-            
-            reader.onload = (event) => {
+            reader.onload = (re) => {
                 const img = new Image();
                 img.onload = () => {
                     const canvas = document.createElement('canvas');
-                    // পিক্সেল কমিয়ে ছোট করা (মোবাইলের জন্য ৪৫০ পিক্সেল যথেষ্ট)
-                    const MAX_WIDTH = 450;
-                    const scale = MAX_WIDTH / img.width;
-                    canvas.width = MAX_WIDTH;
-                    canvas.height = img.height * scale;
-
+                    // ১০৮০ x ১৬২০ রেশিও মেইনটেইন করা
+                    canvas.width = 600; 
+                    canvas.height = 900; 
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-                    // ফাইল সাইজ ছোট করতে কোয়ালিটি ০.৫ (৫০%) করে দিলাম
-                    compressedBase64 = canvas.toDataURL('image/jpeg', 0.5);
-                    
-                    document.getElementById('preview-img').src = compressedBase64;
+                    imgData = canvas.toDataURL('image/jpeg', 0.6);
+                    document.getElementById('preview-img').src = imgData;
                     document.getElementById('preview-img').style.display = 'block';
-                    document.getElementById('placeholder').style.display = 'none';
-                    document.getElementById('status-text').innerText = "ছবি রেডি! ✅";
+                    document.getElementById('label').style.display = 'none';
                 };
-                img.src = event.target.result;
+                img.src = re.target.result;
             };
             reader.readAsDataURL(file);
         };
 
-        // Publish Function
-        document.getElementById('publish-btn').onclick = async () => {
-            const storyTitle = document.getElementById('title').value.trim();
-            const storyBody = document.getElementById('content').value.trim();
-            
-            if(!storyTitle || !storyBody || !compressedBase64) {
-                alert("সবগুলো ঘর পূরণ করুন এবং একটি ছবি দিন!");
-                return;
-            }
+        window.save = async () => {
+            const title = document.getElementById('t').value.trim();
+            const body = document.getElementById('b').value.trim();
+            if(!title || !body || !imgData) return alert("ছবিসহ সব তথ্য দিন!");
 
-            const btn = document.getElementById('publish-btn');
-            const label = document.getElementById('btn-label');
-            const loader = document.getElementById('loader');
+            const btn = document.getElementById('btn');
+            const txt = document.getElementById('txt');
+            const spin = document.getElementById('spin');
 
-            btn.disabled = true;
-            label.innerText = "পাবলিশ হচ্ছে...";
-            loader.style.display = "block";
+            btn.disabled = true; txt.innerText = "UPLOADING..."; spin.style.display = "block";
 
             try {
-                // ১. নিশ্চিত করা যে ইউজার অথেন্টিকেটেড (RULE 3)
-                if (!auth.currentUser) {
-                    await signInAnonymously(auth);
-                }
+                if(!auth.currentUser) await signInAnonymously(auth);
+                
+                const user = auth.currentUser;
+                const userDoc = await getDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'profile', 'data'));
+                const userData = userDoc.exists() ? userDoc.data() : { name: "Author_" + user.uid.substring(0,4) };
 
-                // ২. ডাটাবেসে সেভ করা (RULE 1)
                 await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'stories'), {
-                    title: storyTitle,
-                    content: storyBody,
-                    poster: compressedBase64,
-                    category: document.getElementById('category').value,
-                    status: document.getElementById('privacy').value,
-                    authorName: auth.currentUser.displayName || "গল্পকার",
-                    authorId: auth.currentUser.uid,
-                    views: 0,
-                    likes: 0,
+                    title, content: body, poster: imgData,
+                    category: document.getElementById('c').value,
+                    authorName: userData.name,
+                    authorId: user.uid,
+                    views: 0, likes: 0,
                     createdAt: serverTimestamp()
                 });
 
-                alert("আপনার গল্পটি সফলভাবে পাবলিশ হয়েছে! 🚀");
+                alert("আপনার গল্পটি সফলভাবে পাবলিশ হয়েছে!");
                 window.location.href = 'dashboard.html';
-                
-            } catch (err) {
-                console.error("Publish Error:", err);
-                alert("দুঃখিত, পাবলিশ হয়নি। আবার চেষ্টা করুন।");
-                btn.disabled = false;
-                label.innerText = "PUBLISH STORY";
-                loader.style.display = "none";
+            } catch(e) {
+                alert("Error: " + e.message);
+                btn.disabled = false; txt.innerText = "PUBLISH STORY"; spin.style.display = "none";
             }
         };
     </script>
