@@ -1,344 +1,288 @@
-import React, { useState, useEffect } from 'react';
-import { initializeApp } from 'firebase/app';
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { 
-  getFirestore, 
-  collection, 
-  onSnapshot, 
-  addDoc, 
-  updateDoc, 
-  doc, 
-  serverTimestamp, 
-  increment 
-} from 'firebase/firestore';
-import { 
-  Search, 
-  Bell, 
-  PlusCircle, 
-  Heart, 
-  Eye, 
-  UserPlus, 
-  Bookmark, 
-  TrendingUp, 
-  X, 
-  Image as ImageIcon 
-} from 'lucide-react';
-
-// Firebase Configuration (Using your provided config)
-const firebaseConfig = JSON.parse(__firebase_config);
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-const appId = typeof __app_id !== 'undefined' ? __app_id : 'YouTale-V10-Final';
-
-const CATEGORIES = [
-  "All", "Trending", "Horror", "Fairy Tales", "Romance", 
-  "Motivational", "Educational", "Islamic", "True Stories", 
-  "Sci-Fi", "Religious Stories", "News"
-];
-
-export default function App() {
-  const [user, setUser] = useState(null);
-  const [stories, setStories] = useState([]);
-  const [activeTab, setActiveTab] = useState("All");
-  const [showUpload, setShowUpload] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [selectedStory, setSelectedStory] = useState(null);
-
-  // Form States
-  const [newStory, setNewStory] = useState({
-    title: '', category: 'Horror', content: '', posterUrl: ''
-  });
-
-  useEffect(() => {
-    // Auth Listener
-    const initAuth = async () => {
-      // In this environment, we rely on the injected auth
-    };
-    initAuth();
-    const unsubscribeAuth = onAuthStateChanged(auth, (u) => {
-      setUser(u);
-    });
-
-    // Stories Listener
-    const storiesRef = collection(db, 'artifacts', appId, 'public', 'data', 'stories');
-    const unsubscribeStories = onSnapshot(storiesRef, (snapshot) => {
-      const data = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-      setStories(data);
-      setLoading(false);
-    }, (error) => console.error("Firestore Error:", error));
-
-    return () => {
-      unsubscribeAuth();
-      unsubscribeStories();
-    };
-  }, []);
-
-  // Filter Logic
-  const filteredStories = stories.filter(s => {
-    if (activeTab === "All") return true;
-    if (activeTab === "Trending") return (s.views + s.likes * 5) > 10; // Simple logic for trending
-    return s.category === activeTab;
-  }).sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
-
-  const handleLike = async (id, e) => {
-    e.stopPropagation();
-    if (!user) return alert("লাইক দিতে লগইন করুন!");
-    const storyRef = doc(db, 'artifacts', appId, 'public', 'data', 'stories', id);
-    await updateDoc(storyRef, { likes: increment(1) });
-  };
-
-  const handleRead = async (story) => {
-    setSelectedStory(story);
-    const storyRef = doc(db, 'artifacts', appId, 'public', 'data', 'stories', story.id);
-    await updateDoc(storyRef, { views: increment(1) });
-  };
-
-  const submitStory = async () => {
-    if (!newStory.title || !newStory.content) return alert("টাইটেল এবং গল্প লিখুন!");
-    try {
-      await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'stories'), {
-        ...newStory,
-        authorName: user?.displayName || "Guest Writer",
-        authorId: user?.uid || "guest",
-        views: 0,
-        likes: 0,
-        createdAt: serverTimestamp()
-      });
-      setShowUpload(false);
-      setNewStory({ title: '', category: 'Horror', content: '', posterUrl: '' });
-      alert("গল্প পাবলিশ হয়েছে!");
-    } catch (e) {
-      alert("Error: " + e.message);
-    }
-  };
-
-  return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white font-sans selection:bg-red-500 pb-20">
-      
-      {/* Header */}
-      <header className="fixed top-0 w-full z-50 bg-[#0a0a0a]/80 backdrop-blur-md border-b border-white/5 px-4 py-3 flex justify-between items-center">
-        <div className="flex items-center gap-2">
-          <h1 className="text-2xl font-black tracking-tighter text-red-600 italic">YouTale</h1>
-        </div>
-        <div className="flex items-center gap-4">
-          <button className="p-2 hover:bg-white/5 rounded-full"><Search size={22} /></button>
-          <button className="p-2 hover:bg-white/5 rounded-full relative">
-            <Bell size={22} />
-            <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border border-black"></span>
-          </button>
-          <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-xs font-bold border border-white/10">
-            {user?.displayName?.[0] || 'U'}
-          </div>
-        </div>
-      </header>
-
-      {/* Categories Bar */}
-      <div className="fixed top-[57px] w-full z-40 bg-[#0a0a0a] py-3 px-4 border-b border-white/5 overflow-x-auto flex gap-2 no-scrollbar">
-        {CATEGORIES.map(cat => (
-          <button
-            key={cat}
-            onClick={() => setActiveTab(cat)}
-            className={`px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all duration-300 ${
-              activeTab === cat 
-              ? "bg-red-600 text-white shadow-[0_0_15px_rgba(220,38,38,0.4)]" 
-              : "bg-white/5 text-gray-400 hover:bg-white/10"
-            }`}
-          >
-            {cat === "Trending" && <TrendingUp size={12} className="inline mr-1" />}
-            {cat}
-          </button>
-        ))}
-      </div>
-
-      {/* Main Feed */}
-      <main className="mt-[130px] px-4">
-        {loading ? (
-          <div className="flex flex-col items-center justify-center py-20 opacity-50">
-            <div className="w-10 h-10 border-4 border-red-600 border-t-transparent rounded-full animate-spin mb-4"></div>
-            <p>গল্পগুলো লোড হচ্ছে...</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 gap-4">
-            {filteredStories.map(story => (
-              <div 
-                key={story.id} 
-                className="group relative animate-fadeIn"
-                onClick={() => handleRead(story)}
-              >
-                {/* Poster Card (2:3 Ratio) */}
-                <div className="relative aspect-[2/3] w-full bg-[#1a1a1a] rounded-2xl overflow-hidden border border-white/5 shadow-lg group-active:scale-95 transition-transform duration-300">
-                  <img 
-                    src={story.posterUrl || "https://images.unsplash.com/photo-1532012197267-da84d127e765?q=80&w=1000"} 
-                    alt={story.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                    onError={(e) => e.target.src = "https://via.placeholder.com/1080x1620/1a1a1a/fff?text=YouTale+Poster"}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent"></div>
-                  
-                  {/* Stats Overlay */}
-                  <div className="absolute bottom-3 left-3 right-3">
-                    <h3 className="text-sm font-bold line-clamp-2 leading-tight mb-1">{story.title}</h3>
-                    <div className="flex items-center justify-between text-[10px] text-white/60">
-                      <span>{story.authorName}</span>
-                      <div className="flex items-center gap-2">
-                         <span className="flex items-center gap-0.5"><Eye size={10} /> {story.views}</span>
-                         <span className="flex items-center gap-0.5" onClick={(e) => handleLike(story.id, e)}>
-                            <Heart size={10} className="text-red-500 fill-current" /> {story.likes}
-                         </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </main>
-
-      {/* Upload Modal */}
-      {showUpload && (
-        <div className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-4 backdrop-blur-sm">
-          <div className="w-full max-w-md bg-[#121212] border border-white/10 rounded-3xl p-6 relative">
-            <button onClick={() => setShowUpload(false)} className="absolute top-4 right-4 text-gray-500"><X /></button>
-            <h2 className="text-xl font-black mb-6 text-red-500 uppercase italic">Publish Story</h2>
-            
-            <div className="space-y-4">
-              <div>
-                <label className="text-[10px] uppercase font-bold text-gray-500 ml-1">Title</label>
-                <input 
-                  type="text" 
-                  value={newStory.title}
-                  onChange={(e) => setNewStory({...newStory, title: e.target.value})}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl p-3 outline-none focus:border-red-600"
-                  placeholder="আপনার গল্পের নাম..."
-                />
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-[10px] uppercase font-bold text-gray-500 ml-1">Category</label>
-                  <select 
-                    value={newStory.category}
-                    onChange={(e) => setNewStory({...newStory, category: e.target.value})}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl p-3 outline-none appearance-none text-sm"
-                  >
-                    {CATEGORIES.slice(2).map(c => <option key={c} value={c}>{c}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label className="text-[10px] uppercase font-bold text-gray-500 ml-1">Poster URL (2:3)</label>
-                  <input 
-                    type="text" 
-                    value={newStory.posterUrl}
-                    onChange={(e) => setNewStory({...newStory, posterUrl: e.target.value})}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl p-3 outline-none focus:border-red-600 text-sm"
-                    placeholder="https://..."
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="text-[10px] uppercase font-bold text-gray-500 ml-1">Content</label>
-                <textarea 
-                  value={newStory.content}
-                  onChange={(e) => setNewStory({...newStory, content: e.target.value})}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl p-3 h-40 outline-none focus:border-red-600"
-                  placeholder="আপনার গল্পটি এখানে লিখুন..."
-                ></textarea>
-              </div>
-
-              <button 
-                onClick={submitStory}
-                className="w-full bg-red-600 py-4 rounded-2xl font-black shadow-lg shadow-red-600/20 active:scale-95 transition-all"
-              >
-                PUBLISH NOW 🚀
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Reading Modal */}
-      {selectedStory && (
-        <div className="fixed inset-0 z-[110] bg-[#0a0a0a] overflow-y-auto animate-slideUp">
-          <div className="relative aspect-[2/3] w-full max-h-[80vh]">
-            <img src={selectedStory.posterUrl} className="w-full h-full object-cover" />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-black/40"></div>
-            <button 
-              onClick={() => setSelectedStory(null)} 
-              className="absolute top-6 left-6 w-10 h-10 bg-black/50 rounded-full flex items-center justify-center backdrop-blur-md"
-            >
-              <X size={20} />
-            </button>
-          </div>
-          
-          <div className="px-6 py-8">
-            <span className="bg-red-600/20 text-red-500 px-3 py-1 rounded-full text-xs font-bold uppercase">{selectedStory.category}</span>
-            <h1 className="text-3xl font-black mt-4 leading-tight">{selectedStory.title}</h1>
-            <div className="flex items-center gap-4 mt-4 py-4 border-y border-white/5">
-              <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center font-bold">
-                {selectedStory.authorName[0]}
-              </div>
-              <div className="flex-grow">
-                <p className="text-sm font-bold">{selectedStory.authorName}</p>
-                <p className="text-xs text-gray-500">Author</p>
-              </div>
-              <button className="bg-white text-black px-4 py-1.5 rounded-full text-xs font-bold flex items-center gap-1">
-                <UserPlus size={14} /> Follow
-              </button>
-            </div>
-            
-            <div className="mt-8 text-lg leading-relaxed text-gray-300 whitespace-pre-wrap pb-10">
-              {selectedStory.content}
-            </div>
-            
-            <div className="flex items-center justify-center gap-10 py-6 border-t border-white/5">
-               <button className="flex flex-col items-center gap-1 text-gray-400 hover:text-red-500">
-                  <Heart /> <span className="text-[10px]">{selectedStory.likes}</span>
-               </button>
-               <button className="flex flex-col items-center gap-1 text-gray-400 hover:text-white">
-                  <Bookmark /> <span className="text-[10px]">Save</span>
-               </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Bottom Nav */}
-      <nav className="fixed bottom-0 w-full h-16 bg-[#0a0a0a]/90 backdrop-blur-md border-t border-white/5 flex justify-around items-center px-4">
-        <button onClick={() => setActiveTab("All")} className={`flex flex-col items-center gap-1 ${activeTab === "All" ? "text-red-600" : "text-gray-500"}`}>
-          <span className="text-xl">🏠</span>
-          <span className="text-[10px] font-bold">Feed</span>
-        </button>
-        <button onClick={() => setActiveTab("Trending")} className={`flex flex-col items-center gap-1 ${activeTab === "Trending" ? "text-red-600" : "text-gray-500"}`}>
-          <span className="text-xl">🔥</span>
-          <span className="text-[10px] font-bold">Trending</span>
-        </button>
-        <button 
-          onClick={() => setShowUpload(true)}
-          className="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center text-white -mt-8 shadow-[0_0_20px_rgba(220,38,38,0.5)] active:scale-90 transition-all"
-        >
-          <PlusCircle size={30} />
-        </button>
-        <button className="flex flex-col items-center gap-1 text-gray-500">
-          <span className="text-xl">📖</span>
-          <span className="text-[10px] font-bold">Library</span>
-        </button>
-        <button className="flex flex-col items-center gap-1 text-gray-500">
-          <span className="text-xl">👤</span>
-          <span className="text-[10px] font-bold">You</span>
-        </button>
-      </nav>
-
-      <style>{`
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>YouTale - Home</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700;900&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #070707;
+            --accent: #ff003c;
+            --card-bg: #121212;
+        }
+        body { background-color: var(--bg-dark); color: white; font-family: 'Inter', sans-serif; margin: 0; padding-bottom: 80px; -webkit-tap-highlight-color: transparent; }
+        .logo { font-family: 'Poppins', sans-serif; font-weight: 900; color: var(--accent); font-style: italic; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Category Pills */
+        .cat-pill { flex: 0 0 auto; background: #1a1a1a; padding: 8px 18px; border-radius: 50px; font-size: 13px; font-weight: 600; cursor: pointer; border: 1px solid rgba(255,255,255,0.05); transition: all 0.2s; }
+        .cat-pill.active { background: var(--accent); color: white; border-color: var(--accent); box-shadow: 0 4px 15px rgba(255, 0, 60, 0.3); }
+        
+        /* 2:3 Portrait Card */
+        .story-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 0 12px; }
+        .story-card { position: relative; width: 100%; aspect-ratio: 2 / 3; border-radius: 12px; overflow: hidden; background: var(--card-bg); transition: transform 0.2s; }
+        .story-card:active { transform: scale(0.96); }
+        .card-img { width: 100%; h-full: 100%; object-fit: cover; }
+        .card-gradient { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.95) 10%, rgba(0,0,0,0.4) 40%, transparent 80%); }
+        .card-content { position: absolute; bottom: 0; left: 0; right: 0; padding: 10px; }
+        
+        /* Modal Styles */
+        .full-modal { display: none; position: fixed; inset: 0; background: var(--bg-dark); z-index: 2000; overflow-y: auto; }
+        .upload-popup { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 3000; align-items: center; justify-content: center; padding: 20px; }
+        
+        /* Animations */
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-        .animate-fadeIn { animation: fadeIn 0.5s ease-out forwards; }
-        .animate-slideUp { animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-      `}</style>
+        .animate-up { animation: slideUp 0.3s cubic-bezier(0, 0, 0.2, 1); }
+    </style>
+</head>
+<body>
+
+    <!-- App Header -->
+    <header class="fixed top-0 w-full bg-black/80 backdrop-blur-lg z-50 px-4 py-4 flex justify-between items-center border-b border-white/5">
+        <h1 class="text-2xl logo tracking-tighter">YouTale</h1>
+        <div class="flex gap-4 items-center">
+            <button onclick="openUpload()" class="w-9 h-9 bg-white/10 rounded-full flex items-center justify-center text-xl">🔍</button>
+            <div id="u-avatar" class="w-9 h-9 bg-gradient-to-tr from-pink-600 to-red-600 rounded-full flex items-center justify-center font-bold text-xs border border-white/20">U</div>
+        </div>
+    </header>
+
+    <!-- Navigation Categories -->
+    <div class="fixed top-[68px] w-full bg-black/80 backdrop-blur-md py-3 px-4 z-40 border-b border-white/5 flex gap-2 overflow-x-auto no-scrollbar">
+        <div class="cat-pill active" onclick="setCat('All', this)">All</div>
+        <div class="cat-pill" onclick="setCat('Trending', this)">🔥 Trending</div>
+        <div class="cat-pill" onclick="setCat('Horror', this)">Horror</div>
+        <div class="cat-pill" onclick="setCat('Fairy Tales', this)">Fairy Tales</div>
+        <div class="cat-pill" onclick="setCat('Romance', this)">Romance</div>
+        <div class="cat-pill" onclick="setCat('Motivational', this)">Motivational</div>
+        <div class="cat-pill" onclick="setCat('Educational', this)">Educational</div>
+        <div class="cat-pill" onclick="setCat('Islamic', this)">Islamic</div>
+        <div class="cat-pill" onclick="setCat('True Stories', this)">True Stories</div>
+        <div class="cat-pill" onclick="setCat('Sci-Fi', this)">Sci-Fi</div>
+        <div class="cat-pill" onclick="setCat('News', this)">News</div>
     </div>
-  );
-}
+
+    <!-- Main Feed -->
+    <main class="mt-[140px]" id="main-content">
+        <div class="story-grid" id="story-feed">
+            <!-- Skeleton Loader -->
+            <div class="story-card animate-pulse bg-white/5"></div>
+            <div class="story-card animate-pulse bg-white/5"></div>
+        </div>
+    </main>
+
+    <!-- Floating Upload Button -->
+    <button onclick="openUpload()" class="fixed bottom-24 right-6 w-14 h-14 bg-red-600 rounded-full shadow-2xl flex items-center justify-center text-2xl z-40 active:scale-90 transition-all">➕</button>
+
+    <!-- Upload Interface -->
+    <div id="upload-modal" class="upload-popup">
+        <div class="bg-[#121212] w-full max-w-md p-6 rounded-3xl border border-white/10 shadow-2xl">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold text-white">Create Story</h2>
+                <button onclick="closeUpload()" class="text-3xl text-gray-500">&times;</button>
+            </div>
+            <div class="space-y-4">
+                <input type="text" id="story-title" placeholder="গল্পের নাম..." class="w-full bg-white/5 border border-white/10 p-4 rounded-xl outline-none focus:border-red-600">
+                <select id="story-cat" class="w-full bg-white/5 border border-white/10 p-4 rounded-xl outline-none">
+                    <option value="Horror">Horror</option>
+                    <option value="Islamic">Islamic</option>
+                    <option value="Romance">Romance</option>
+                    <option value="Sci-Fi">Sci-Fi</option>
+                </select>
+                <input type="text" id="story-poster" placeholder="থাম্বনেইল লিঙ্ক (১০৮০x১৬২০)" class="w-full bg-white/5 border border-white/10 p-4 rounded-xl outline-none">
+                <textarea id="story-body" placeholder="গল্পটি এখানে লিখুন..." class="w-full bg-white/5 border border-white/10 p-4 rounded-xl h-40 outline-none"></textarea>
+                <button onclick="handlePublish()" id="pub-btn" class="w-full bg-red-600 py-4 rounded-xl font-bold text-white shadow-lg shadow-red-600/20">PUBLISH NOW</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reader View -->
+    <div id="reader-view" class="full-modal animate-up">
+        <div id="reader-content"></div>
+    </div>
+
+    <!-- Bottom Navbar -->
+    <nav class="fixed bottom-0 w-full h-20 bg-black/90 backdrop-blur-xl border-t border-white/5 flex justify-around items-center z-50 px-2">
+        <div class="flex flex-col items-center gap-1 text-red-500">
+            <span class="text-2xl">🏠</span>
+            <span class="text-[10px] font-bold uppercase tracking-wider">Home</span>
+        </div>
+        <div class="flex flex-col items-center gap-1 text-gray-500" onclick="setCat('Trending', document.querySelectorAll('.cat-pill')[1])">
+            <span class="text-2xl">🔥</span>
+            <span class="text-[10px] font-bold uppercase tracking-wider">Trending</span>
+        </div>
+        <div class="flex flex-col items-center gap-1 text-gray-500">
+            <span class="text-2xl">🔖</span>
+            <span class="text-[10px] font-bold uppercase tracking-wider">Library</span>
+        </div>
+        <div class="flex flex-col items-center gap-1 text-gray-500">
+            <span class="text-2xl">👤</span>
+            <span class="text-[10px] font-bold uppercase tracking-wider">Profile</span>
+        </div>
+    </nav>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, onSnapshot, addDoc, updateDoc, doc, increment, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const firebaseConfig = JSON.parse(__firebase_config);
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const appId = "YouTale-Pro-V1";
+
+        let allStories = [];
+        let currentFilter = "All";
+
+        onAuthStateChanged(auth, user => {
+            if(user) document.getElementById('u-avatar').innerText = user.displayName ? user.displayName[0] : 'U';
+            initApp();
+        });
+
+        function initApp() {
+            const ref = collection(db, 'artifacts', appId, 'public', 'data', 'stories');
+            onSnapshot(ref, (snap) => {
+                allStories = [];
+                snap.forEach(d => allStories.push({id: d.id, ...d.data()}));
+                renderFeed();
+            });
+        }
+
+        window.setCat = (cat, el) => {
+            currentFilter = cat;
+            document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('active'));
+            el.classList.add('active');
+            renderFeed();
+        }
+
+        function renderFeed() {
+            const feed = document.getElementById('story-feed');
+            let data = [...allStories];
+
+            if(currentFilter === "Trending") {
+                // Trending Logic: Views + (Likes * 5)
+                data.sort((a,b) => ((b.views||0) + (b.likes||0)*5) - ((a.views||0) + (a.likes||0)*5));
+            } else if(currentFilter !== "All") {
+                data = data.filter(s => s.category === currentFilter);
+            } else {
+                // Newest first for home
+                data.sort((a,b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+            }
+
+            if(data.length === 0) {
+                feed.innerHTML = '<div class="col-span-2 py-20 text-center text-gray-600 italic">গল্প পাওয়া যায়নি...</div>';
+                return;
+            }
+
+            feed.innerHTML = data.map(s => `
+                <div class="story-card shadow-2xl shadow-black" onclick="openStory('${s.id}')">
+                    <img src="${s.poster || 'https://images.unsplash.com/photo-1519681393784-d120267953ba'}" class="card-img h-full w-full">
+                    <div class="card-gradient"></div>
+                    <div class="card-content">
+                        <h3 class="font-bold text-sm leading-tight line-clamp-2">${s.title}</h3>
+                        <div class="flex justify-between items-center mt-2 text-[10px] text-white/70">
+                            <span class="font-medium">${s.authorName || 'Unknown'}</span>
+                            <div class="flex gap-2">
+                                <span>👁️ ${s.views || 0}</span>
+                                <span class="text-red-500">❤️ ${s.likes || 0}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        window.openUpload = () => document.getElementById('upload-modal').style.display = 'flex';
+        window.closeUpload = () => document.getElementById('upload-modal').style.display = 'none';
+
+        window.handlePublish = async () => {
+            const title = document.getElementById('story-title').value;
+            const cat = document.getElementById('story-cat').value;
+            const poster = document.getElementById('story-poster').value;
+            const body = document.getElementById('story-body').value;
+
+            if(!title || !body) return alert("Title and Content required!");
+
+            const btn = document.getElementById('pub-btn');
+            btn.disabled = true; btn.innerText = "PUBLISHING...";
+
+            try {
+                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'stories'), {
+                    title, category: cat, poster, content: body,
+                    authorName: auth.currentUser ? auth.currentUser.displayName : "Guest Writer",
+                    views: 0, likes: 0, createdAt: serverTimestamp()
+                });
+                closeUpload();
+                document.getElementById('story-title').value = '';
+                document.getElementById('story-body').value = '';
+            } catch(e) { alert(e.message); }
+            finally { btn.disabled = false; btn.innerText = "PUBLISH NOW"; }
+        }
+
+        window.openStory = async (id) => {
+            const s = allStories.find(item => item.id === id);
+            if(!s) return;
+
+            // Increment View in DB
+            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'stories', id);
+            await updateDoc(docRef, { views: increment(1) });
+
+            const reader = document.getElementById('reader-view');
+            const content = document.getElementById('reader-content');
+            reader.style.display = 'block';
+
+            content.innerHTML = `
+                <div class="relative w-full aspect-[2/3]">
+                    <img src="${s.poster}" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/30"></div>
+                    <button onclick="closeStory()" class="absolute top-8 left-6 w-10 h-10 bg-black/40 backdrop-blur-xl rounded-full flex items-center justify-center text-xl shadow-lg">✕</button>
+                </div>
+                <div class="px-6 -mt-20 relative z-10">
+                    <span class="bg-red-600 text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full">${s.category}</span>
+                    <h1 class="text-3xl font-black mt-4 leading-tight">${s.title}</h1>
+                    <div class="flex items-center gap-3 mt-6 border-y border-white/10 py-5">
+                        <div class="w-11 h-11 bg-indigo-600 rounded-full flex items-center justify-center font-bold text-sm">${s.authorName[0]}</div>
+                        <div class="flex-grow">
+                            <p class="font-bold text-sm text-white">${s.authorName}</p>
+                            <p class="text-[10px] text-gray-500 font-bold uppercase tracking-tighter">Verified Author</p>
+                        </div>
+                        <button onclick="alert('Followed!')" class="bg-white text-black px-5 py-2 rounded-full text-xs font-black shadow-lg">FOLLOW</button>
+                    </div>
+                    <div class="mt-8 text-lg leading-relaxed text-gray-300 whitespace-pre-wrap pb-32">
+                        ${s.content}
+                    </div>
+                </div>
+                <div class="fixed bottom-0 w-full bg-black/80 backdrop-blur-2xl border-t border-white/10 p-5 flex justify-around">
+                    <button onclick="likeIt('${s.id}')" class="flex flex-col items-center gap-1">
+                        <span class="text-2xl text-red-500">❤️</span>
+                        <span class="text-[10px] font-bold">${s.likes || 0} Likes</span>
+                    </button>
+                    <button onclick="alert('Saved to Library!')" class="flex flex-col items-center gap-1">
+                        <span class="text-2xl">🔖</span>
+                        <span class="text-[10px] font-bold">Save</span>
+                    </button>
+                    <button onclick="alert('Share link copied!')" class="flex flex-col items-center gap-1">
+                        <span class="text-2xl">🔗</span>
+                        <span class="text-[10px] font-bold">Share</span>
+                    </button>
+                </div>
+            `;
+        }
+
+        window.closeStory = () => document.getElementById('reader-view').style.display = 'none';
+
+        window.likeIt = async (id) => {
+            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'stories', id);
+            await updateDoc(docRef, { likes: increment(1) });
+            // local update for instant feedback
+            const s = allStories.find(item => item.id === id);
+            if(s) {
+                s.likes = (s.likes || 0) + 1;
+                openStory(id);
+            }
+        }
+    </script>
+</body>
+</html>
