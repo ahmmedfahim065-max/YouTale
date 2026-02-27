@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>YouTale Studio - Create Story</title>
+    <title>YouTale Studio - Upload</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700;900&family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <style>
@@ -11,7 +11,7 @@
         body { background-color: var(--bg-dark); color: white; font-family: 'Inter', sans-serif; margin: 0; }
         .studio-card { background: #121212; border: 1px solid rgba(255,255,255,0.05); border-radius: 24px; }
         input, textarea, select { background: #1a1a1a !important; border: 1px solid #333 !important; color: white !important; transition: 0.3s; }
-        input:focus, textarea:focus, select:focus { border-color: var(--accent) !important; box-shadow: 0 0 10px rgba(255, 0, 60, 0.2); }
+        input:focus, textarea:focus { border-color: var(--accent) !important; box-shadow: 0 0 10px rgba(255, 0, 60, 0.2); }
         
         .preview-container { 
             position: relative; 
@@ -28,29 +28,27 @@
             justify-content: center;
             cursor: pointer;
         }
-        .preview-container img { width: 100%; height: 100%; object-fit: cover; display: none; }
-        .upload-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.4); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 10px; }
+        #preview-img { width: 100%; height: 100%; object-fit: cover; display: none; }
+        .upload-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.4); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 10px; z-index: 5; }
     </style>
 </head>
 <body class="p-4 pb-20">
 
-    <!-- Header -->
     <header class="flex justify-between items-center py-4 mb-6">
-        <button onclick="window.history.back()" class="text-gray-400 font-bold flex items-center gap-2">
+        <button onclick="window.location.href='dashboard.html'" class="text-gray-400 font-bold flex items-center gap-2">
             <span>←</span> ফিরে যান
         </button>
-        <h1 class="text-xl font-black italic text-red-600 tracking-tighter">YouTale Studio</h1>
+        <h1 class="text-xl font-black italic text-red-600">Studio</h1>
     </header>
 
     <div class="max-w-2xl mx-auto">
-        <h2 class="text-3xl font-black mb-2 text-white">নতুন গল্প লিখুন</h2>
-        <p class="text-gray-500 text-sm mb-8">আপনার সৃজনশীলতা সবার মাঝে ছড়িয়ে দিন।</p>
+        <h2 class="text-3xl font-black mb-2">নতুন গল্প লিখুন</h2>
+        <p class="text-gray-500 text-sm mb-8">গ্যালারি থেকে ছবি সিলেক্ট করুন।</p>
 
         <div class="studio-card p-6 space-y-8">
-            
-            <!-- Gallery Upload Section -->
             <div class="text-center">
-                <label class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4 block">থাম্বনেইল (গ্যালারি থেকে)</label>
+                <label class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4 block">Story Poster (2:3)</label>
+                
                 <div class="preview-container" onclick="document.getElementById('file-input').click()">
                     <img id="preview-img" src="" alt="Thumbnail">
                     <div id="upload-placeholder" class="upload-overlay">
@@ -59,50 +57,43 @@
                     </div>
                 </div>
                 <input type="file" id="file-input" accept="image/*" class="hidden" onchange="processImage(event)">
+                <p id="file-status" class="text-[10px] text-gray-500 mt-2 font-medium">Portrait ছবি দিলে ভালো দেখাবে</p>
             </div>
 
-            <hr class="border-white/5">
-
-            <!-- Inputs -->
             <div class="space-y-5">
                 <div>
-                    <label class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 block">গল্পের শিরোনাম</label>
-                    <input type="text" id="story-title" placeholder="গল্পের নাম..." class="w-full p-4 rounded-xl outline-none text-lg font-bold">
+                    <label class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 block">গল্পের নাম</label>
+                    <input type="text" id="story-title" placeholder="শিরোনাম লিখুন..." class="w-full p-4 rounded-xl outline-none text-lg font-bold">
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 block">ক্যাটাগরি</label>
                         <select id="story-cat" class="w-full p-4 rounded-xl outline-none font-semibold">
                             <option value="Horror">Horror 👻</option>
                             <option value="Islamic">Islamic 🌙</option>
                             <option value="Romance">Romance ❤️</option>
-                            <option value="Fairy Tales">Fairy Tales ✨</option>
-                            <option value="Motivational">Motivational 💪</option>
-                            <option value="Sci-Fi">Sci-Fi 🚀</option>
+                            <option value="True Stories">True Stories 📖</option>
                         </select>
                     </div>
                     <div>
-                        <label class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 block">প্রাইভেসি মোড</label>
+                        <label class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 block">মোড</label>
                         <select id="story-status" class="w-full p-4 rounded-xl outline-none font-semibold">
-                            <option value="public">🌐 Public (সবাই দেখবে)</option>
-                            <option value="private">🔒 Private (শুধু আমি দেখবো)</option>
+                            <option value="public">Public 🌐</option>
+                            <option value="private">Private 🔒</option>
                         </select>
                     </div>
                 </div>
 
                 <div>
-                    <label class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 block">পুরো গল্প</label>
-                    <textarea id="story-body" placeholder="আপনার গল্পটি এখানে বিস্তারিত লিখুন..." class="w-full p-4 rounded-xl h-64 outline-none leading-relaxed"></textarea>
+                    <label class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 block">মূল গল্প</label>
+                    <textarea id="story-body" placeholder="এখানে লিখতে শুরু করুন..." class="w-full p-4 rounded-xl h-64 outline-none leading-relaxed"></textarea>
                 </div>
             </div>
 
-            <!-- Publish Button -->
-            <div class="pt-4">
-                <button onclick="handlePublish()" id="pub-btn" class="w-full bg-red-600 py-5 rounded-2xl font-black text-white shadow-xl shadow-red-600/20 active:scale-95 transition-all text-lg uppercase">
-                    Publish Now 🚀
-                </button>
-            </div>
+            <button onclick="handlePublish()" id="pub-btn" class="w-full bg-red-600 py-5 rounded-2xl font-black text-white shadow-xl active:scale-95 transition-all text-lg uppercase">
+                Publish Story 🚀
+            </button>
         </div>
     </div>
 
@@ -117,57 +108,74 @@
         const db = getFirestore(app);
         const appId = "YouTale-Pro-V1";
 
-        let base64Image = "";
+        let finalImageBase64 = "";
 
-        // গ্যালারি থেকে ছবি প্রসেস করার ফাংশন
+        // Function to Resize Image (Critical for Gallery Uploads)
         window.processImage = (event) => {
             const file = event.target.files[0];
             if (!file) return;
+
             const reader = new FileReader();
             reader.onload = (e) => {
-                base64Image = e.target.result;
-                const img = document.getElementById('preview-img');
-                img.src = base64Image;
-                img.style.display = 'block';
-                document.getElementById('upload-placeholder').style.opacity = '0.3';
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 600; // Resizing to optimized size
+                    const scaleSize = MAX_WIDTH / img.width;
+                    canvas.width = MAX_WIDTH;
+                    canvas.height = img.height * scaleSize;
+
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                    finalImageBase64 = canvas.toDataURL('image/jpeg', 0.7); // 70% quality
+                    
+                    const preview = document.getElementById('preview-img');
+                    preview.src = finalImageBase64;
+                    preview.style.display = 'block';
+                    document.getElementById('upload-placeholder').style.opacity = '0.2';
+                    document.getElementById('file-status').innerText = "ছবি সফলভাবে সিলেক্ট হয়েছে! ✅";
+                };
+                img.src = e.target.result;
             };
             reader.readAsDataURL(file);
         };
 
-        // পাবলিশ ফাংশন
         window.handlePublish = async () => {
             const title = document.getElementById('story-title').value;
             const cat = document.getElementById('story-cat').value;
             const body = document.getElementById('story-body').value;
             const status = document.getElementById('story-status').value;
 
-            if(!title || !body) return alert("দয়া করে শিরোনাম এবং গল্প লিখুন!");
-            if(!base64Image) return alert("গ্যালারি থেকে একটি সুন্দর ছবি দিন!");
+            if(!title || !body || !finalImageBase64) {
+                return alert("দয়া করে ছবি, শিরোনাম এবং গল্প সব পূরণ করুন!");
+            }
 
             const btn = document.getElementById('pub-btn');
-            btn.disabled = true; 
-            btn.innerText = "প্রসেসিং হচ্ছে...";
+            btn.disabled = true;
+            btn.innerText = "পাবলিশ হচ্ছে... দয়া করে অপেক্ষা করুন";
 
             try {
                 await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'stories'), {
                     title,
                     category: cat,
-                    poster: base64Image,
+                    poster: finalImageBase64,
                     content: body,
                     status: status,
-                    authorName: auth.currentUser ? (auth.currentUser.displayName || "Writer") : "Guest Writer",
-                    authorId: auth.currentUser ? auth.currentUser.uid : "guest",
+                    authorName: auth.currentUser?.displayName || "Writer",
+                    authorId: auth.currentUser?.uid || "guest",
                     views: 0,
                     likes: 0,
                     createdAt: serverTimestamp()
                 });
                 
-                alert(status === 'public' ? "গল্পটি পাবলিশ হয়েছে!" : "গল্পটি আপনার ব্যক্তিগত তালিকায় সেভ হয়েছে!");
-                window.location.href = 'dashboard.html'; // পাবলিশ হওয়ার পর হোমে নিয়ে যাবে
+                alert("আপনার গল্পটি সফলভাবে পাবলিশ হয়েছে!");
+                window.location.href = 'dashboard.html';
             } catch(e) {
-                alert("ত্রুটি: " + e.message);
-                btn.disabled = false; 
-                btn.innerText = "Publish Now 🚀";
+                console.error(e);
+                alert("Error: " + e.message);
+                btn.disabled = false;
+                btn.innerText = "Publish Story 🚀";
             }
         }
     </script>
