@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>YouTale - Home</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@700;800&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #0f0f0f; 
+            color: white;
+            padding-bottom: 75px;
+            user-select: none;
+        }
+        .category-scroll::-webkit-scrollbar { display: none; }
+        .category-pill {
+            flex: 0 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px 18px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            white-space: nowrap;
+        }
+        .category-pill.active { background: white; color: black; }
+        
+        .story-poster {
+            aspect-ratio: 16 / 9;
+            width: 100%;
+            background-size: cover;
+            background-position: center;
+            border-radius: 15px;
+            position: relative;
+            background-color: #1e1e1e;
+        }
+        .trending-badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: #ff0000;
+            color: white;
+            font-size: 10px;
+            font-weight: 900;
+            padding: 3px 10px;
+            border-radius: 6px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+        .bottom-nav {
+            background: rgba(15, 15, 15, 0.98);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+        .brand-logo {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(to right, #ff0000, #ff5f5f);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        /* Skeleton Animation for Loading */
+        @keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+        .skeleton { animation: pulse 1.5s infinite ease-in-out; }
+    </style>
+</head>
+<body>
+
+    <!-- Top Header -->
+    <header class="fixed top-0 w-full z-50 bg-[#0f0f0f] px-5 py-4 flex justify-between items-center">
+        <h1 class="text-2xl font-black brand-logo">YouTale</h1>
+        <div class="flex gap-6 items-center">
+            <button class="text-xl">🔍</button>
+            <div id="user-avatar" class="w-9 h-9 bg-gradient-to-tr from-indigo-600 to-purple-500 rounded-full flex items-center justify-center text-sm font-bold border-2 border-white/10 shadow-lg">?</div>
+        </div>
+    </header>
+
+    <!-- Categories Section -->
+    <div class="fixed top-[64px] w-full z-40 bg-[#0f0f0f] py-3 px-4 border-b border-white/5">
+        <div class="flex gap-3 overflow-x-auto category-scroll">
+            <div class="category-pill active" onclick="filterStories('All')">All</div>
+            <div class="category-pill" onclick="filterStories('Trending')">🔥 Trending</div>
+            <div class="category-pill" onclick="filterStories('Horror')">Horror</div>
+            <div class="category-pill" onclick="filterStories('Fairy Tales')">Fairy Tales</div>
+            <div class="category-pill" onclick="filterStories('Romance')">Romance</div>
+            <div class="category-pill" onclick="filterStories('Motivational')">Motivational</div>
+            <div class="category-pill" onclick="filterStories('Educational')">Educational</div>
+            <div class="category-pill" onclick="filterStories('Islamic')">Islamic</div>
+            <div class="category-pill" onclick="filterStories('Sci-Fi')">Sci-Fi</div>
+            <div class="category-pill" onclick="filterStories('Religious')">Religious</div>
+            <div class="category-pill" onclick="filterStories('News')">News</div>
+        </div>
+    </div>
+
+    <!-- Feed Content -->
+    <main class="mt-[135px] px-0">
+        <div id="stories-container" class="space-y-8">
+            <!-- Loading Skeletons -->
+            <div class="px-4 space-y-4">
+                <div class="w-full aspect-video bg-white/5 rounded-2xl skeleton"></div>
+                <div class="flex gap-3">
+                    <div class="w-12 h-12 rounded-full bg-white/5 skeleton"></div>
+                    <div class="flex-grow space-y-2">
+                        <div class="h-4 w-3/4 bg-white/5 rounded skeleton"></div>
+                        <div class="h-3 w-1/2 bg-white/5 rounded skeleton"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav fixed bottom-0 w-full h-[70px] flex justify-around items-center z-50">
+        <button class="flex flex-col items-center gap-1 text-white">
+            <span class="text-2xl">🏠</span>
+            <span class="text-[10px] font-bold">Home</span>
+        </button>
+        <button class="flex flex-col items-center gap-1 text-gray-500">
+            <span class="text-2xl">🔥</span>
+            <span class="text-[10px] font-bold">Shorts</span>
+        </button>
+        <button class="flex flex-col items-center">
+            <div class="w-12 h-12 bg-white text-black rounded-full flex items-center justify-center text-3xl font-light shadow-xl active:scale-90 transition-transform">+</div>
+        </button>
+        <button class="flex flex-col items-center gap-1 text-gray-500">
+            <span class="text-2xl">📚</span>
+            <span class="text-[10px] font-bold">Library</span>
+        </button>
+        <button class="flex flex-col items-center gap-1 text-gray-500">
+            <span class="text-2xl">👤</span>
+            <span class="text-[10px] font-bold">You</span>
+        </button>
+    </nav>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, onSnapshot, doc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyB9WjFq4Ips9wMKoDmO8v2M6aZ2OxynQQo",
+            authDomain: "youtale-f6845.firebaseapp.com",
+            projectId: "youtale-f6845",
+            storageBucket: "youtale-f6845.firebasestorage.app",
+            messagingSenderId: "10854951568",
+            appId: "1:10854951568:web:cffcc9813d858e130d8615"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const appId = "YouTale-V10-Final";
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                document.getElementById('user-avatar').innerText = user.displayName ? user.displayName.charAt(0).toUpperCase() : 'U';
+                loadStories();
+            } else if (localStorage.getItem('youtale_guest')) {
+                document.getElementById('user-avatar').innerText = 'G';
+                loadStories();
+            } else {
+                window.location.href = "login.html";
+            }
+        });
+
+        function loadStories(filter = 'All') {
+            const container = document.getElementById('stories-container');
+            const storiesRef = collection(db, 'artifacts', appId, 'public', 'data', 'stories');
+            
+            onSnapshot(storiesRef, (snapshot) => {
+                let stories = [];
+                snapshot.forEach(doc => stories.push({ id: doc.id, ...doc.data() }));
+
+                if(filter === 'Trending') {
+                    stories.sort((a, b) => (b.views + b.likes) - (a.views + a.likes));
+                } else if(filter !== 'All') {
+                    stories = stories.filter(s => s.category === filter);
+                }
+                renderStories(stories);
+            });
+        }
+
+        function renderStories(stories) {
+            const container = document.getElementById('stories-container');
+            if (stories.length === 0) {
+                container.innerHTML = `<div class="p-20 text-center text-gray-500 font-bold">No stories found. Start sharing!</div>`;
+                return;
+            }
+
+            container.innerHTML = stories.map(story => `
+                <div class="w-full cursor-pointer animate-in fade-in duration-500" onclick="viewStory('${story.id}')">
+                    <div class="story-poster" style="background-image: url('${story.poster || 'https://images.unsplash.com/photo-1516979187457-637abb4f9353?q=80&w=1000&auto=format&fit=crop'}')">
+                        ${story.views > 500 ? '<div class="trending-badge">🔥 TRENDING</div>' : ''}
+                        <div class="absolute bottom-3 right-3 bg-black/70 px-2 py-1 rounded text-[10px] font-black border border-white/10">READ</div>
+                    </div>
+                    <div class="flex gap-4 p-4">
+                        <div class="w-11 h-11 rounded-full bg-gradient-to-br from-indigo-500 to-pink-500 flex-shrink-0 flex items-center justify-center font-bold text-lg border-2 border-white/5">
+                            ${story.authorName ? story.authorName.charAt(0).toUpperCase() : 'A'}
+                        </div>
+                        <div class="flex-grow">
+                            <h3 class="text-[15px] font-bold leading-tight line-clamp-2">${story.title}</h3>
+                            <p class="text-[12px] text-gray-400 mt-1.5 font-medium">
+                                ${story.authorName} • ${formatNum(story.views)} views • ${story.category}
+                            </p>
+                            <div class="flex gap-4 mt-2 text-[11px] font-bold text-gray-500">
+                                <span>❤️ ${formatNum(story.likes)} Likes</span>
+                                <span>💬 0 Comments</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        window.viewStory = async (id) => {
+            const storyRef = doc(db, 'artifacts', appId, 'public', 'data', 'stories', id);
+            await updateDoc(storyRef, { views: increment(1) });
+            alert("Reading Story ID: " + id);
+        };
+
+        window.filterStories = (cat) => {
+            document.querySelectorAll('.category-pill').forEach(p => p.classList.remove('active'));
+            event.target.classList.add('active');
+            loadStories(cat);
+        };
+
+        function formatNum(n) {
+            if(!n) return '0';
+            if(n >= 1000) return (n/1000).toFixed(1) + 'K';
+            return n;
+        }
+    </script>
+</body>
+  </html>
