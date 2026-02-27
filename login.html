@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>YouTale - Join the World of Stories</title>
-    <!-- Tailwind CSS -->
+    <title>YouTale - Enter the World of Stories</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         body { 
-            font-family: 'Poppins', sans-serif; 
-            background: linear-gradient(-45deg, #0f172a, #1e1b4b, #312e81, #1e1b4b);
+            font-family: 'Inter', sans-serif; 
+            background: linear-gradient(-45deg, #0f172a, #1e1b4b, #581c87, #0f172a);
             background-size: 400% 400%;
             animation: gradient 15s ease infinite;
             min-height: 100vh;
@@ -18,8 +17,6 @@
             align-items: center;
             justify-content: center;
             margin: 0;
-            user-select: none;
-            color: #f8fafc;
         }
         @keyframes gradient {
             0% { background-position: 0% 50%; }
@@ -34,10 +31,10 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
         .brand-text {
+            font-family: 'Poppins', sans-serif;
             background: linear-gradient(to right, #818cf8, #f472b6);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            font-weight: 800;
         }
         .input-box {
             background: rgba(255, 255, 255, 0.07);
@@ -50,69 +47,64 @@
             border-color: #818cf8;
             box-shadow: 0 0 15px rgba(129, 140, 248, 0.3);
         }
-        .tab-btn { transition: 0.3s; position: relative; }
-        .tab-btn.active { color: #818cf8; }
-        .tab-btn.active::after {
-            content: ''; position: absolute; bottom: -5px; left: 30%; width: 40%; height: 3px;
-            background: #818cf8; border-radius: 10px;
+        .tab-btn.active { color: #818cf8; border-bottom: 3px solid #818cf8; }
+        .story-badge {
+            font-size: 9px; padding: 2px 8px; border-radius: 50px;
+            background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.6);
+            margin: 0 3px; border: 1px solid rgba(255,255,255,0.05);
         }
-        .hidden { display: none !important; }
+        #auto-loader { transition: opacity 0.5s ease; }
     </style>
 </head>
 <body class="p-4">
 
-    <!-- Loading Screen -->
-    <div id="app-loader" class="fixed inset-0 z-[100] bg-slate-900 flex items-center justify-center">
-        <div class="animate-pulse flex flex-col items-center">
-            <h1 class="text-4xl brand-text mb-2">YouTale</h1>
-            <div class="w-12 h-1 bg-indigo-500 rounded-full overflow-hidden">
-                <div class="w-full h-full bg-pink-500 animate-ping"></div>
-            </div>
-        </div>
+    <!-- Loading Overlay -->
+    <div id="auto-loader" class="fixed inset-0 z-[100] bg-[#0f172a] flex flex-col items-center justify-center">
+        <h1 class="text-4xl font-extrabold brand-text mb-4">YouTale</h1>
+        <div class="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
     </div>
 
     <div class="glass-card w-full max-w-md p-8 md:p-10 relative overflow-hidden">
-        
-        <!-- Top Guest Button -->
-        <div class="flex justify-center mb-6">
-            <button onclick="continueAsGuest()" class="px-6 py-2 rounded-full border border-indigo-400/30 text-indigo-300 text-xs font-bold uppercase tracking-widest hover:bg-indigo-500/10 transition-all">
-                Continue as Guest 🕵️‍♂️
-            </button>
+        <button onclick="continueAsGuest()" class="w-full bg-white/5 text-gray-300 rounded-xl py-2 font-medium hover:bg-white/10 active:scale-95 text-xs transition-all mb-8 border border-white/5">
+            🕵️‍♂️ Read stories without an account
+        </button>
+
+        <div class="text-center mb-8 relative z-10">
+            <h2 class="text-5xl font-extrabold brand-text tracking-tighter mb-3">YouTale</h2>
+            <div class="flex justify-center flex-wrap gap-1 mb-4">
+                <span class="story-badge">HORROR</span>
+                <span class="story-badge">ROMANTIC</span>
+                <span class="story-badge">MYTHOLOGY</span>
+                <span class="story-badge">SCIFI</span>
+            </div>
+            <p class="text-gray-400 text-sm font-medium">Read, Write, and Inspire the World</p>
         </div>
 
-        <div class="text-center mb-8">
-            <h2 class="text-5xl brand-text tracking-tighter mb-2">YouTale</h2>
-            <p class="text-indigo-200/60 text-sm font-medium">Read • Write • Earn Global</p>
+        <div class="flex border-b border-white/10 mb-8 relative z-10 text-sm">
+            <button onclick="switchTab('login')" id="tab-login" class="flex-1 py-3 text-center font-bold text-gray-500 active">SIGN IN</button>
+            <button onclick="switchTab('register')" id="tab-register" class="flex-1 py-3 text-center font-bold text-gray-500">SIGN UP</button>
         </div>
 
-        <!-- Tab Switching -->
-        <div class="flex mb-8 border-b border-white/5">
-            <button onclick="switchTab('login')" id="tab-login" class="flex-1 py-3 text-center font-bold text-gray-400 active">Sign In</button>
-            <button onclick="switchTab('register')" id="tab-register" class="flex-1 py-3 text-center font-bold text-gray-400">Sign Up</button>
-        </div>
-
-        <!-- Login Form -->
-        <div id="form-login" class="space-y-5">
-            <input type="email" id="login-email" class="input-box w-full rounded-2xl py-4 px-6 outline-none" placeholder="Email Address">
-            <input type="password" id="login-password" class="input-box w-full rounded-2xl py-4 px-6 outline-none" placeholder="Password">
-            
-            <div class="text-right">
+        <div id="form-login" class="space-y-5 relative z-10">
+            <div class="relative">
+                <span class="absolute inset-y-0 left-4 flex items-center text-gray-500">📧</span>
+                <input type="email" id="login-email" class="input-box w-full rounded-2xl py-4 pl-12 pr-5 outline-none text-sm" placeholder="Email Address">
+            </div>
+            <div class="relative">
+                <span class="absolute inset-y-0 left-4 flex items-center text-gray-500">🔑</span>
+                <input type="password" id="login-password" class="input-box w-full rounded-2xl py-4 pl-12 pr-5 outline-none text-sm" placeholder="Password">
+            </div>
+            <div class="text-right px-1">
                 <button onclick="forgotPassword()" class="text-xs font-semibold text-indigo-400 hover:text-pink-400 transition-colors">Forgot Password?</button>
             </div>
-
-            <button onclick="processLogin()" class="w-full bg-gradient-to-r from-indigo-600 to-indigo-500 text-white rounded-2xl py-4 font-bold shadow-lg hover:shadow-indigo-500/20 active:scale-[0.98] transition-all">
-                Sign In
-            </button>
+            <button onclick="processLogin()" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-2xl py-4 font-bold shadow-xl active:scale-95 transition-all">Sign In</button>
         </div>
 
-        <!-- Register Form -->
-        <div id="form-register" class="space-y-5 hidden">
-            <input type="text" id="reg-name" class="input-box w-full rounded-2xl py-4 px-6 outline-none" placeholder="Full Name">
-            <input type="email" id="reg-email" class="input-box w-full rounded-2xl py-4 px-6 outline-none" placeholder="Email Address">
-            <input type="password" id="reg-password" class="input-box w-full rounded-2xl py-4 px-6 outline-none" placeholder="Password (6+ characters)">
-            <button onclick="processRegister()" class="w-full bg-gradient-to-r from-pink-600 to-pink-500 text-white rounded-2xl py-4 font-bold shadow-lg active:scale-[0.98] transition-all">
-                Create Account
-            </button>
+        <div id="form-register" class="space-y-5 hidden relative z-10">
+            <input type="text" id="reg-name" class="input-box w-full rounded-2xl py-4 px-5 outline-none text-sm" placeholder="Your Full Name">
+            <input type="email" id="reg-email" class="input-box w-full rounded-2xl py-4 px-5 outline-none text-sm" placeholder="Email Address">
+            <input type="password" id="reg-password" class="input-box w-full rounded-2xl py-4 px-5 outline-none text-sm" placeholder="Password (6+ chars)">
+            <button onclick="processRegister()" class="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-2xl py-4 font-bold shadow-xl active:scale-95 transition-all">Create Account</button>
         </div>
 
         <div id="auth-message" class="mt-4 text-center text-xs font-bold p-3 rounded-xl hidden"></div>
@@ -123,8 +115,7 @@
             <div class="flex-grow border-t border-white/10"></div>
         </div>
 
-        <!-- Google Button -->
-        <button onclick="loginWithGoogle()" class="w-full bg-white text-slate-900 rounded-2xl py-4 font-bold flex items-center justify-center gap-3 hover:bg-gray-100 active:scale-[0.98] transition-all">
+        <button onclick="loginWithGoogle()" class="w-full bg-white/10 text-white border border-white/10 rounded-2xl py-4 font-bold flex items-center justify-center gap-3 hover:bg-white/20 active:scale-95 transition-all">
             <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/action/google.svg" class="w-6 h-6">
             Continue with Google
         </button>
@@ -148,16 +139,14 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
         const googleProvider = new GoogleAuthProvider();
-        const appId = "YouTale-V10-Final";
 
-        // ১. অটো-লগইন চেক (Session Persistence)
         onAuthStateChanged(auth, (user) => {
+            const loader = document.getElementById('auto-loader');
             if (user) {
-                // ইউজার লগইন করা থাকলে সরাসরি ড্যাশবোর্ডে নিয়ে যাবে
-                window.location.href = "index.html"; 
+                window.location.href = "index.html";
             } else {
-                // ইউজার না থাকলে লোডার সরিয়ে লগইন পেজ দেখাবে
-                document.getElementById('app-loader').classList.add('hidden');
+                loader.style.opacity = '0';
+                setTimeout(() => loader.style.display = 'none', 500);
             }
         });
 
@@ -171,51 +160,25 @@
 
         window.processLogin = async () => {
             const e = document.getElementById('login-email').value, p = document.getElementById('login-password').value;
-            if(!e || !p) return showMsg('Please fill all fields', true);
-            try {
-                showMsg('Authenticating...', false);
-                await signInWithEmailAndPassword(auth, e, p);
-            } catch(err) { showMsg('Incorrect email or password', true); }
+            try { await signInWithEmailAndPassword(auth, e, p); } catch(err) { showMsg('Login failed!', true); }
         };
 
         window.processRegister = async () => {
             const n = document.getElementById('reg-name').value, e = document.getElementById('reg-email').value, p = document.getElementById('reg-password').value;
-            if(!n || !e || p.length < 6) return showMsg('Invalid info (Password 6+ chars)', true);
             try {
-                showMsg('Creating account...', false);
                 const cred = await createUserWithEmailAndPassword(auth, e, p);
                 await updateProfile(cred.user, { displayName: n });
-                await setDoc(doc(db, 'artifacts', appId, 'users', cred.user.uid, 'profile'), {
-                    name: n, email: e, role: 'user', balance: 0, joinedAt: new Date().toISOString()
+                await setDoc(doc(db, 'artifacts', 'YouTale-V10-Final', 'users', cred.user.uid, 'profile'), {
+                    name: n, email: e, balance: 0, createdAt: new Date().toISOString()
                 });
-            } catch(err) { showMsg('Email already in use or error occurred', true); }
-        };
-
-        window.forgotPassword = async () => {
-            const email = document.getElementById('login-email').value;
-            if(!email) return showMsg('Enter your email in the box first', true);
-            try {
-                await sendPasswordResetEmail(auth, email);
-                showMsg('Reset link sent to your email!', false);
-            } catch(err) { showMsg('Could not send reset link', true); }
+            } catch(err) { showMsg('Registration failed!', true); }
         };
 
         window.loginWithGoogle = async () => {
-            try {
-                const res = await signInWithPopup(auth, googleProvider);
-                const user = res.user;
-                const userRef = doc(db, 'artifacts', appId, 'users', user.uid, 'profile');
-                const docSnap = await getDoc(userRef);
-                if (!docSnap.exists()) {
-                    await setDoc(userRef, { name: user.displayName, email: user.email, role: 'user', balance: 0, joinedAt: new Date().toISOString() });
-                }
-            } catch(err) { showMsg('Google sign-in failed', true); }
+            try { await signInWithPopup(auth, googleProvider); } catch(err) { showMsg('Google failed!', true); }
         };
 
-        window.continueAsGuest = () => { 
-            localStorage.setItem('youtale_guest', 'true'); 
-            window.location.href = "index.html"; 
-        };
+        window.continueAsGuest = () => { localStorage.setItem('youtale_guest', 'true'); window.location.href = "index.html"; };
 
         function showMsg(m, isE) {
             const box = document.getElementById('auth-message');
