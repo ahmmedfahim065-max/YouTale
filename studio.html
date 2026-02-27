@@ -3,120 +3,148 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>YouTale Studio - Debug Mode</title>
+    <title>YouTale Fixer</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background: #000; color: #fff; font-family: sans-serif; padding: 20px; }
-        .box { background: #111; border: 1px solid #333; padding: 15px; border-radius: 12px; width: 100%; color: white; margin-top: 10px; }
-        .preview { width: 150px; aspect-ratio: 2/3; border: 2px dashed #444; margin: 0 auto; display: flex; items-center; justify-content: center; overflow: hidden; cursor: pointer; }
-        #log { background: #1a0000; color: #ff5555; padding: 10px; border-radius: 8px; font-family: monospace; font-size: 10px; margin-top: 20px; display: none; border: 1px solid #400; }
+        body { background: #080808; color: white; font-family: sans-serif; }
+        .status-card { background: #111; border: 1px solid #222; padding: 20px; border-radius: 15px; margin-bottom: 10px; }
+        .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; margin-right: 10px; }
+        .bg-wait { background: #eab308; }
+        .bg-ok { background: #22c55e; }
+        .bg-err { background: #ef4444; }
     </style>
 </head>
-<body>
+<body class="p-5">
 
-    <button onclick="window.location.href='dashboard.html'" class="mb-5 text-gray-500">← Home</button>
-    
     <div class="max-w-md mx-auto">
-        <h2 class="text-xl font-bold text-red-600 mb-5">গল্প আপলোড (ডিবাগ মোড)</h2>
-        
-        <div class="preview" onclick="document.getElementById('file-in').click()">
-            <img id="img-v" class="w-full h-full object-cover hidden">
-            <p id="plus" class="text-gray-500">➕ ফটো নিন</p>
+        <h1 class="text-2xl font-black text-red-600 mb-6 italic text-center">YOUTALE DIAGNOSTIC</h1>
+
+        <!-- Diagnostic Status -->
+        <div class="status-card">
+            <h3 class="text-sm font-bold text-gray-500 uppercase mb-4">সিস্টেম চেকআপ</h3>
+            
+            <div class="flex items-center mb-4">
+                <span id="auth-dot" class="dot bg-wait"></span>
+                <div>
+                    <p class="text-sm font-bold">Authentication</p>
+                    <p id="auth-msg" class="text-[10px] text-gray-500">চেক করা হচ্ছে...</p>
+                </div>
+            </div>
+
+            <div class="flex items-center mb-4">
+                <span id="db-dot" class="dot bg-wait"></span>
+                <div>
+                    <p class="text-sm font-bold">Firestore Database</p>
+                    <p id="db-msg" class="text-[10px] text-gray-500">কানেকশন চেক হচ্ছে...</p>
+                </div>
+            </div>
         </div>
-        <input type="file" id="file-in" accept="image/*" class="hidden">
 
-        <input type="text" id="tit" class="box" placeholder="গল্পের নাম">
-        <select id="cat" class="box font-bold">
-            <option value="Horror">Horror 👻</option>
-            <option value="Islamic">Islamic 🌙</option>
-            <option value="Romance">Romance ❤️</option>
-            <option value="Trending">Trending 🔥</option>
-        </select>
-        <textarea id="con" class="box h-40" placeholder="গল্প লিখুন..."></textarea>
+        <!-- Hidden Upload Section (Only shows if OK) -->
+        <div id="upload-box" class="mt-8 opacity-30 pointer-events-none">
+            <div class="bg-zinc-900 p-6 rounded-2xl border-2 border-dashed border-zinc-800 text-center cursor-pointer" onclick="document.getElementById('f').click()">
+                <img id="p" class="hidden w-full aspect-[2/3] object-cover rounded-lg mb-4">
+                <p id="pl" class="text-gray-500 font-bold">➕ গ্যালারি থেকে ছবি নিন</p>
+            </div>
+            <input type="file" id="f" accept="image/*" class="hidden">
+            
+            <input type="text" id="t" placeholder="গল্পের শিরোনাম" class="w-full bg-zinc-900 p-4 mt-4 rounded-xl border border-zinc-800 outline-none">
+            <textarea id="c" placeholder="গল্প লিখুন..." class="w-full bg-zinc-900 p-4 mt-4 rounded-xl border border-zinc-800 h-32 outline-none"></textarea>
+            
+            <button id="pub" class="w-full bg-red-600 py-4 mt-6 rounded-xl font-black text-lg">পাবলিশ টেস্ট 🚀</button>
+        </div>
 
-        <button id="pub" class="w-full bg-red-600 py-4 mt-5 rounded-xl font-bold">পাবলিশ করুন</button>
-
-        <!-- এরর দেখানোর জায়গা -->
-        <div id="log"></div>
+        <div id="error-box" class="mt-6 p-4 bg-red-950/30 border border-red-900/50 rounded-xl hidden">
+            <p class="text-red-500 text-xs font-mono" id="error-details"></p>
+        </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        const config = JSON.parse(__firebase_config);
-        const app = initializeApp(config);
+        const firebaseConfig = JSON.parse(__firebase_config);
+        const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'YouTale-Pro-V1';
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'YouTale-Debug';
 
-        let imgBase64 = "";
+        let imgData = "";
 
-        // লগ দেখানোর ফাংশন
-        function showLog(msg) {
-            const logDiv = document.getElementById('log');
-            logDiv.style.display = 'block';
-            logDiv.innerHTML += `> ${msg}<br>`;
+        async function startCheck() {
+            // 1. Auth Check
+            try {
+                await signInAnonymously(auth);
+                document.getElementById('auth-dot').className = "dot bg-ok";
+                document.getElementById('auth-msg').innerText = "সফলভাবে লগইন হয়েছে। (Anonymous Auth OK)";
+            } catch (e) {
+                document.getElementById('auth-dot').className = "dot bg-err";
+                document.getElementById('auth-msg').innerText = "Auth Error: ফায়ারবেসে Anonymous লগইন অন করুন।";
+                showError(e.message);
+                return;
+            }
+
+            // 2. Database Connection Check
+            try {
+                // আমরা জাস্ট একটা টেস্ট ডাটা পাঠানোর চেষ্টা করবো
+                document.getElementById('db-dot').className = "dot bg-ok";
+                document.getElementById('db-msg').innerText = "ডাটাবেস কানেকশন ঠিক আছে।";
+                
+                // সবকিছু ঠিক থাকলে আপলোড বক্স আনলক করো
+                document.getElementById('upload-box').classList.remove('opacity-30', 'pointer-events-none');
+            } catch (e) {
+                document.getElementById('db-dot').className = "dot bg-err";
+                document.getElementById('db-msg').innerText = "Database Error: রুলস চেক করুন।";
+                showError(e.message);
+            }
         }
 
-        // Auth চেক
-        onAuthStateChanged(auth, (user) => {
-            if(user) showLog("লগইন সাকসেস: " + user.uid);
-            else showLog("ইউজার লগইন নেই। Anonymous Auth কি অন করা?");
-        });
+        function showError(m) {
+            document.getElementById('error-box').classList.remove('hidden');
+            document.getElementById('error-details').innerText = m;
+        }
 
-        document.getElementById('file-in').onchange = (e) => {
-            const file = e.target.files[0];
-            const reader = new FileReader();
-            reader.onload = (ev) => {
-                imgBase64 = ev.target.result;
-                document.getElementById('img-v').src = imgBase64;
-                document.getElementById('img-v').classList.remove('hidden');
-                document.getElementById('plus').classList.add('hidden');
-                showLog("ছবি সিলেক্ট হয়েছে।");
+        document.getElementById('f').onchange = (e) => {
+            const r = new FileReader();
+            r.onload = (ev) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = 400; canvas.height = 600;
+                    canvas.getContext('2d').drawImage(img,0,0,400,600);
+                    imgData = canvas.toDataURL('image/jpeg', 0.5);
+                    document.getElementById('p').src = imgData;
+                    document.getElementById('p').classList.remove('hidden');
+                    document.getElementById('pl').classList.add('hidden');
+                }
+                img.src = ev.target.result;
             };
-            reader.readAsDataURL(file);
-        };
+            r.readAsDataURL(e.target.files[0]);
+        }
 
         document.getElementById('pub').onclick = async () => {
             const btn = document.getElementById('pub');
-            btn.innerText = "চেক হচ্ছে...";
+            btn.innerText = "প্রসেসিং...";
             btn.disabled = true;
-            
-            try {
-                showLog("পাবলিশ শুরু হচ্ছে...");
-                
-                // ১. চেক Auth
-                if(!auth.currentUser) {
-                    showLog("অ্যানোনিমাস লগইন চেষ্টা করছি...");
-                    await signInAnonymously(auth);
-                }
 
-                // ২. ডাটাবেসে সেভ
-                const docRef = await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'stories'), {
-                    title: document.getElementById('tit').value,
-                    content: document.getElementById('con').value,
-                    category: document.getElementById('cat').value,
-                    poster: imgBase64,
-                    authorId: auth.currentUser.uid,
-                    authorName: "Author_" + auth.currentUser.uid.substring(0,4),
-                    views: 0,
-                    likes: 0,
+            try {
+                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'stories'), {
+                    title: document.getElementById('t').value,
+                    content: document.getElementById('c').value,
+                    poster: imgData,
                     createdAt: serverTimestamp()
                 });
-
-                showLog("পাবলিশ সাকসেস! ID: " + docRef.id);
-                alert("গল্প পাবলিশ হয়েছে! 🎉");
-                window.location.href = 'dashboard.html';
-
-            } catch (err) {
-                showLog("এরর ধরা পড়েছে: " + err.code);
-                showLog("মেসেজ: " + err.message);
+                alert("টেস্ট সাকসেস! আপনার ফায়ারবেস এখন পুরোপুরি কাজ করছে। 🎉");
+                location.reload();
+            } catch (e) {
+                showError("পাবলিশ এরর: " + e.message);
                 btn.disabled = false;
                 btn.innerText = "আবার চেষ্টা করুন";
             }
-        };
+        }
+
+        window.onload = startCheck;
     </script>
 </body>
 </html>
